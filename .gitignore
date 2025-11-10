@@ -1,0 +1,12 @@
+# Ambiente Virtuale Python
+venv/
+
+# Cache e file compilati di Python
+__pycache__/
+*.pyc
+
+# Database (non vogliamo caricare i dati su GitHub)
+database.db
+
+# File di configurazione sensibili
+.env
