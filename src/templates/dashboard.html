@@ -16,15 +16,27 @@
         </thead>
         <tbody>
             {% for product in products %}
-            <tr>
-                <td>{{ product.name }}</td>
-                <td>{{ product.quantity }}</td>
-                <td>€ {{ "%.2f"|format(product.cost_per_unit) }}</td>
 
-                <td>{{ product.expiry_date.strftime('%Y-%m-%d') }}</td>
-            </tr>
-            {% endfor %}
+            {% set days_left = (product.expiry_date.date() - today).days %}
+            
+            {% if days_left < 0 %}
+                <tr class="tr-expired">
+            {% elif days_left <= 7 %}
+                <tr class="tr-danger">
+            {% elif days_left <= 30 %}
+                <tr class="tr-warning">
+            {% else %}
+                <tr> {% endif %}
+
+                 <td>{{ product.name }}</td>
+                 <td>{{ product.quantity }}</td>
+                 <td>€ {{ "%.2f"|format(product.cost_per_unit) if product.cost_per_unit else 'N/A' }}</td>
+                 <td>{{ product.expiry_date.strftime('%Y-%m-%d') }}</td>
+
+             </tr>
+             {% endfor %}
         </tbody>
+
     </table>
 
     {% if not products %}

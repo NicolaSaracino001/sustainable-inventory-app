@@ -49,3 +49,43 @@ footer {
     color: #ffffff;
     margin-top: auto; /* Lo spinge in fondo */
 }
+
+/* Codice che aggiunge i colori alle righe della tabella in base alla scadenza
+/*
+Stili per gli Alert di Scadenza
+*/
+/* Stile per la riga "pericolo" (scadenza imminente) */
+.tr-danger {
+    background-color: #ffebee; /* Rosso chiaro */
+    font-weight: bold;
+    color: #b71c1c; /* Rosso scuro */
+}
+
+/* Stile per la riga "attenzione" (scadenza media) */
+.tr-warning {
+    background-color: #fffde7; /* Giallo chiaro */
+    color: #f57f17; /* Arancione/Giallo scuro */
+}
+
+/* Stile per la riga "scaduto" (prodotto andato) */
+.tr-expired {
+    background-color: #eeeeee; /* Grigio */
+    color: #757575;
+    text-decoration: line-through; /* Testo barrato */
+}
+
+/* Miglioriamo lo stile della tabella */
+table {
+    border-collapse: collapse; /* Bordi più puliti */
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+thead {
+    background-color: #f5f5f5;
+}

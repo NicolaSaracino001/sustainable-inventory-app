@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for 
-from datetime import datetime 
+from datetime import datetime, date 
 from .. import db #Importiamo il nostro db 
 from .. models.product import Product # Importiamo il modello Product
 
@@ -19,7 +19,7 @@ def dashboard():
     # 1. Recupera tutti i prodotti del database ordinandoli per data di scadenza (i più vicini prima)
     products = Product.query.order_by(Product.expiry_date.asc()).all()
     # 2. Passa la lista dei prodotti al template HTML
-    return render_template("dashboard.html", products=products)
+    return render_template("dashboard.html", products=products, today=date.today())
 
 
 # NUOVA ROTTA per la pagina "Aggiungi Prodotto"
