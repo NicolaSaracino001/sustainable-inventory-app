@@ -12,9 +12,5 @@ inventory_bp = Blueprint(
 # Quando un utente visita l'URL "/"
 @inventory_bp.route('/')
 def dashboard():
-    # Per ora, mandiamo un semplice messaggio
-    # In futuro, qui caricheremo il file dashboard.html
-    return "<h1>Dashboard (in costruzione!)</h1>"
-
-# (Nota: importiamo render_template anche se non lo usiamo ancora,
-# ci servirà tra poco)
+    # Questo dice a Flask: "Trova e restituisci il file 'dashboard.html'"
+    return render_template("dashboard.html")
