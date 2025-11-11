@@ -4,6 +4,31 @@
 
 {% block content %}
     <h2>Dashboard Prodotti</h2>
-    <p>Il nostro file HTML è caricato e ora eredita da base.html!</p>
 
-    {% endblock %}
+    <table border="1" width="100%">
+        <thead>
+            <tr>
+                <th>Nome Prodotto</th>
+                <th>Quantità</th>
+                <th>Costo/Unità</th>
+                <th>Data Scadenza</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>€ {{ "%.2f"|format(product.cost_per_unit) }}</td>
+
+                <td>{{ product.expiry_date.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if not products %}
+        <p>Nessun prodotto nell'inventario. Aggiungine uno!</p>
+    {% endif %}
+
+{% endblock %}

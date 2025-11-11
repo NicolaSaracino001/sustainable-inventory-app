@@ -16,8 +16,10 @@ inventory_bp = Blueprint(
 # Quando un utente visita l'URL "/"
 @inventory_bp.route('/')
 def dashboard():
-    # Questo dice a Flask: "Trova e restituisci il file 'dashboard.html'"
-    return render_template("dashboard.html")
+    # 1. Recupera tutti i prodotti del database ordinandoli per data di scadenza (i più vicini prima)
+    products = Product.query.order_by(Product.expiry_date.asc()).all()
+    # 2. Passa la lista dei prodotti al template HTML
+    return render_template("dashboard.html", products=products)
 
 
 # NUOVA ROTTA per la pagina "Aggiungi Prodotto"
