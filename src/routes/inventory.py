@@ -14,3 +14,13 @@ inventory_bp = Blueprint(
 def dashboard():
     # Questo dice a Flask: "Trova e restituisci il file 'dashboard.html'"
     return render_template("dashboard.html")
+
+
+# NUOVA ROTTA per la pagina "Aggiungi Prodotto"
+@inventory_bp.route('/add', methods=['GET'])
+def add_product_page():
+    # Questa rotta, per ora, mostra solo la pagina HTML
+    return render_template("add_product.html")
+
+# methods=[GET] significa che questa funzione risponde solo quando un utente visita (GET) la pagina. Stiamo così dicendo:
+# "Quando qualcuno visita/add, mostragli add_product.html"

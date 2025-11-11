@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product - S.I.M.{% endblock %}
+
+{% block content %}
+    <h2>Add New Product to Inventory</h2>
+
+    <form action="" method="POST">
+        <div>
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="product_name" required>
+        </div>
+
+        <div>
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="product_quantity" step="0.01" required>
+        </div>
+
+        <div>
+            <label for="cost">Cost per Unit (€):</label>
+            <input type="number" id="cost" name="product_cost" step="0.01">
+        </div>
+
+        <div>
+            <label for="expiry">Expiry Date:</label>
+            <input type="date" id="expiry" name="product_expiry" required>
+        </div>
+
+        <button type="submit">Add Product</button>
+    </form>
+{% endblock %}

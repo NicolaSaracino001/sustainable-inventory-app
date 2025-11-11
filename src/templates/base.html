@@ -13,7 +13,8 @@
     <header>
         <nav>
             <h1>Sustainable Inventory Management</h1>
-            <a href="/">Dashboard</a>
+            <a href="{{ url_for('inventory_bp.dashboard')}}">Dashboard</a>
+            <a href="{{url_for('inventory_bp.add_product_page')}}">Add Product</a>
             </nav>
     </header>
 
