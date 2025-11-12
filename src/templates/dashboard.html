@@ -12,7 +12,9 @@
                 <th>Quantità</th>
                 <th>Costo/Unità</th>
                 <th>Data Scadenza</th>
-                <th>Azione</th> </tr>
+                <th>Azione</th>
+                <th>Usa / Spreca</th> </th>
+
         </thead>
         <tbody>
             {% for product in products %}
@@ -38,6 +40,11 @@
                        onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?');">
                        Elimina
                     </a>
+                </td>
+
+                <td> 
+                    <button type="button">Usa</button>
+                    <button tupe="button">Spreca</button>
                 </td>
             
             </tr>
