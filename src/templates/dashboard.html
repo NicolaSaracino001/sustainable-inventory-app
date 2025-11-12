@@ -4,7 +4,7 @@
 
 {% block content %}
     <h2>Dashboard Prodotti</h2>
-
+    
     <table border="1" width="100%">
         <thead>
             <tr>
@@ -12,11 +12,11 @@
                 <th>Quantità</th>
                 <th>Costo/Unità</th>
                 <th>Data Scadenza</th>
-            </tr>
+                <th>Azione</th> </tr>
         </thead>
         <tbody>
             {% for product in products %}
-
+            
             {% set days_left = (product.expiry_date.date() - today).days %}
             
             {% if days_left < 0 %}
@@ -27,25 +27,26 @@
                 <tr class="tr-warning">
             {% else %}
                 <tr> {% endif %}
-
-                 <td>{{ product.name }}</td>
-                 <td>{{ product.quantity }}</td>
-                 <td>€ {{ "%.2f"|format(product.cost_per_unit) if product.cost_per_unit else 'N/A' }}</td>
-                 <td>{{ product.expiry_date.strftime('%Y-%m-%d') }}</td>
-
-                 </td>
-                    <a href="{{url_for('inventory_bp.delete_product', product_id=product.id)}}"
-                        onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?');">
-                        Elimina
+            
+                <td>{{ product.name }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>€ {{ "%.2f"|format(product.cost_per_unit) if product.cost_per_unit else 'N/A' }}</td>
+                <td>{{ product.expiry_date.strftime('%Y-%m-%d') }}</td>
+                
+                <td>
+                    <a href="{{ url_for('inventory_bp.delete_product', product_id=product.id) }}" 
+                       onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?');">
+                       Elimina
                     </a>
-                 </td>
-
-             </tr>
-             {% endfor %}
+                </td>
+            
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
+    
     {% if not products %}
         <p>Nessun prodotto nell'inventario. Aggiungine uno!</p>
     {% endif %}
-
+    
 {% endblock %}
