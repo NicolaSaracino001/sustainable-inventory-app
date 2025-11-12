@@ -13,7 +13,7 @@
                 <th>Costo/Unità</th>
                 <th>Data Scadenza</th>
                 <th>Azione</th>
-                <th>Usa / Spreca</th> </th>
+                <th>Usa / Spreca (Aggiorna Quantità)</th> </th>
 
         </thead>
         <tbody>
@@ -43,8 +43,13 @@
                 </td>
 
                 <td> 
-                    <button type="button">Usa</button>
-                    <button tupe="button">Spreca</button>
+                    <form action="{{ url_for('inventory_bp.update_stock',product_id=product.id)}}" method="Post" style="display: flex; align-items: center";>
+                        <input type="number" name="quantity_to_update" step="0.01" min="0"
+                        placeholder="Q.ta" style="width:60px; margin-right: 5px;" required>
+                        <button type="submit" name="action" value="use">Usa</button>
+                        <button type="submit" name="action" value="waste">Spreca</button>
+                    </form>
+                    
                 </td>
             
             </tr>

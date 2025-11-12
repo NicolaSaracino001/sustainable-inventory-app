@@ -74,3 +74,39 @@ def delete_product(product_id):
     except:
         # 4. In caso di errore
         return "Errore durante l'eliminazione del prodotto."
+
+
+# NUOVA ROTTA per Aggiornare la Quantità (Usato/Sprecato)
+@inventory_bp.route('/update_stock/<int:product_id>', methods=['POST'])
+def update_stock(product_id):
+    # 1. Trova il prodotto nel database
+    product = Product.query.get_or_404(product_id)
+
+    try:
+        # 2. Prendi la quantità dal modulo
+        quantity_to_remove = float(request.form.get('quantity_to_update'))
+
+        # 3. Controlla quale bottone è stato premuto
+        action = request.form.get('action') # Sarà 'use' o 'waste'
+
+        if quantity_to_remove > 0:
+            # 4. Aggiorna la quantità nel database
+            # Per ora, 'Usa' e 'Spreca' fanno la stessa cosa: 
+            # riducono la quantità.
+            if action == 'use' or action == 'waste':
+                if product.quantity >= quantity_to_remove:
+                    product.quantity -= quantity_to_remove
+                else:
+                    # Non andare in negativo, imposta a zero
+                    product.quantity = 0
+
+                # (In futuro, potremmo salvare 'action' per i report)
+
+            db.session.commit()
+
+    except ValueError:
+        # Gestisce l'errore se l'utente non inserisce un numero valido
+        pass 
+
+    # 5. Rimanda alla dashboard
+    return redirect(url_for('inventory_bp.dashboard'))
