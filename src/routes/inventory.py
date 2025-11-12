@@ -58,5 +58,19 @@ def add_product_page():
     # Se non è POST, è GET, quindi mostriamo solo la pagina
     return render_template("add_product.html")
 
-# methods=[GET] significa che questa funzione risponde solo quando un utente visita (GET) la pagina. Stiamo così dicendo:
-# "Quando qualcuno visita/add, mostragli add_product.html"
+# NUOVA ROTTA per Eliminare il Prodotto
+@inventory_bp.route('/delete/<int:product_id>')
+def delete_product(product_id):
+    # 1. Trova il prodotto nel database usando l'ID, o mostra un errore 404
+    product_to_delete = Product.query.get_or_404(product_id)
+
+    try:
+        # 2. Prova a eliminare il prodotto
+        db.session.delete(product_to_delete)
+        db.session.commit()
+
+        # 3. Rimanda alla dashboard
+        return redirect(url_for('inventory_bp.dashboard'))
+    except:
+        # 4. In caso di errore
+        return "Errore durante l'eliminazione del prodotto."

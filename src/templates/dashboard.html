@@ -33,12 +33,17 @@
                  <td>€ {{ "%.2f"|format(product.cost_per_unit) if product.cost_per_unit else 'N/A' }}</td>
                  <td>{{ product.expiry_date.strftime('%Y-%m-%d') }}</td>
 
+                 </td>
+                    <a href="{{url_for('inventory_bp.delete_product', product_id=product.id)}}"
+                        onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?');">
+                        Elimina
+                    </a>
+                 </td>
+
              </tr>
              {% endfor %}
         </tbody>
-
     </table>
-
     {% if not products %}
         <p>Nessun prodotto nell'inventario. Aggiungine uno!</p>
     {% endif %}
