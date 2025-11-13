@@ -8,6 +8,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    color: #333;
 }
 
 /* Contenitore principale */
@@ -50,6 +51,7 @@ footer {
     margin-top: auto; /* Lo spinge in fondo */
 }
 
+
 /* Codice che aggiunge i colori alle righe della tabella in base alla scadenza
 /*
 Stili per gli Alert di Scadenza
@@ -84,8 +86,38 @@ th, td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    color: #333;
 }
 
 thead {
     background-color: #f5f5f5;
+}
+
+/*
+Stili per i Flash Messages
+*/
+.flash-message {
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Messaggio di successo (verde) */
+.flash-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* Messaggio di errore/alert (rosso) */
+.flash-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Messaggio informativo (blu) */
+.flash-info {
+    background-color: #cce5ff;
+    color: #004085;
 }
