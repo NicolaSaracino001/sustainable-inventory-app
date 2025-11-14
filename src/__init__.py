@@ -20,8 +20,10 @@ def create_app():
     # pronto prima di importare le rotte
     with app.app_context():
         # Importa i modelli del database 
-        # (dobbiamo ancora scriverli, ma li prepariamo)
-        from .models import product 
+        from .models import product, log 
+        # Crea tutte le tabelle del database
+        db.create_all()
+        #... (codice successivo) ...
 
         # Crea tutte le tabelle del database (se non esistono già)
         db.create_all() 
