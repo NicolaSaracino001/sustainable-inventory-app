@@ -5,6 +5,20 @@
 {% block content %}
     <h2>Report Uso e Sprechi</h2>
 
+    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <h3>Riepilogo Totali</h3>
+        <p>
+            Totale Unità **Usate**: 
+            <strong style="color: green;">{{ "%.2f"|format(total_used) }}</strong>
+        </p>
+        <p>
+            Totale Unità **Sprecate**: 
+            <strong style="color: red;">{{ "%.2f"|format(total_wasted) }}</strong>
+        </p>
+    </div>
+    <hr>
+
+    <h3>Dettaglio Transazioni</h3>
     <p>Questa pagina mostra tutte le transazioni di scarico (Uso e Spreco) registrate nel sistema, dalle più recenti alle più vecchie.</p>
 
     <table border="1" width="100%">

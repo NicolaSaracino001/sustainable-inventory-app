@@ -5,6 +5,9 @@ from .. import db
 # 1b. IMPORTA ANCHE IL NUOVO MODELLO 'Log'
 from ..models.product import Product 
 from ..models.log import Log
+#1c. AGGIUNTA 'func' ALL'IMPORT DI 'db'
+from .. import db
+from sqlalchemy.sql import func
 
 inventory_bp = Blueprint(
     'inventory_bp', __name__,
@@ -112,5 +115,14 @@ def report_page():
     # 1. Recupera tutti i record dalla tabella Log ordinandoli per data (i più recenti prima)
     log_entries = Log.query.order_by(Log.timestamp.desc()).all()
 
-    # 2. Passa i record al template HTML
-    return render_template("report.html", log_entries=log_entries)
+    # 2. Calcola i totali usando SQLAlchemy (func.sum) per sommare le quantità basandoci 
+    # sul tipo di azione ('use' o 'waste')
+    total_used_query = db.session.query(func.sum(Log.quantity)).filter(Log.action_type == 'use').scalar()
+    total_wasted_query = db.session.query(func.sum(Log.quantity)).filter(Log.action_type == 'waste').scalar()
+
+    # Gestiamo il caso in cui non ci siano dati (risulterebbe 'None')
+    total_used = total_used_query if total_used_query is not None else 0 
+    total_wasted = total_wasted_query if total_wasted_query is not None else 0
+
+    # 3. Passa i record e i nuovi totali al template HTML
+    return render_template("report.html", log_entries=log_entries, total_used=total_used, total_wasted=total_wasted)
