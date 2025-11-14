@@ -1,8 +1,10 @@
-# 1. IMPORTA 'flash' da Flask
+# 1a. IMPORTA 'flash' da Flask
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from datetime import datetime, date
 from .. import db 
-from .. models.product import Product 
+# 1b. IMPORTA ANCHE IL NUOVO MODELLO 'Log'
+from ..models.product import Product 
+from ..models.log import Log
 
 inventory_bp = Blueprint(
     'inventory_bp', __name__,
@@ -20,6 +22,7 @@ def dashboard():
 def add_product_page():
 
     if request.method == 'POST':
+        # ... (Nessuna modifica in questa funzione) ...
         name = request.form.get('product_name')
         quantity = request.form.get('product_quantity')
         cost = request.form.get('product_cost')
@@ -39,9 +42,7 @@ def add_product_page():
         db.session.add(new_product)
         db.session.commit()
 
-        # 2. MESSAGGIO FLASH DI SUCCESSO
         flash('Prodotto aggiunto con successo!', 'success')
-
         return redirect(url_for('inventory_bp.dashboard'))
 
     return render_template("add_product.html")
@@ -49,39 +50,54 @@ def add_product_page():
 
 @inventory_bp.route('/delete/<int:product_id>')
 def delete_product(product_id):
+    # ... (Nessuna modifica in questa funzione) ...
     product_to_delete = Product.query.get_or_404(product_id)
 
     try:
         db.session.delete(product_to_delete)
         db.session.commit()
-
-        # 3. MESSAGGIO FLASH DI PERICOLO/ELIMINAZIONE
         flash('Prodotto eliminato.', 'danger')
-
         return redirect(url_for('inventory_bp.dashboard'))
     except:
         return "Errore durante l'eliminazione del prodotto."
 
 
+# 2. MODIFICHIAMO QUESTA FUNZIONE
 @inventory_bp.route('/update_stock/<int:product_id>', methods=['POST'])
 def update_stock(product_id):
     product = Product.query.get_or_404(product_id)
 
     try:
         quantity_to_remove = float(request.form.get('quantity_to_update'))
-        action = request.form.get('action') 
+        action = request.form.get('action') # 'use' o 'waste'
 
-        if quantity_to_remove > 0:
-            if action == 'use' or action == 'waste':
-                if product.quantity >= quantity_to_remove:
-                    product.quantity -= quantity_to_remove
-                else:
-                    product.quantity = 0
+        if quantity_to_remove > 0 and (action == 'use' or action == 'waste'):
 
-                db.session.commit()
+            if product.quantity >= quantity_to_remove:
+                product.quantity -= quantity_to_remove
+            else:
+                quantity_to_remove = product.quantity # Rimuovi solo quello che c'è
+                product.quantity = 0
 
-                # 4. MESSAGGIO FLASH INFORMATIVO
-                flash('Quantità aggiornata!', 'info')
+            # 3. CREIAMO IL NUOVO RECORD DI LOG
+            new_log_entry = Log(
+                action_type=action,
+                product_name=product.name,
+                quantity=quantity_to_remove,
+                product_id=product.id
+            )
+
+            # 4. AGGIUNGIAMO IL LOG ALLA SESSIONE
+            db.session.add(new_log_entry)
+
+            # 5. COMMIT SALVA ENTRAMBE LE MODIFICHE
+            # (sia l'aggiornamento di 'product' che il nuovo 'log_entry')
+            db.session.commit()
+
+            # Traduciamo il termine "action" prima di mostrarlo
+            action_in_italiano = "Usato" if action == 'use' else "Sprecato"
+
+            flash(f'{quantity_to_remove} unità di {product.name} registrate come "{action_in_italiano}"!', 'info')
 
     except ValueError:
         flash('Quantità non valida.', 'danger') 
