@@ -6,14 +6,13 @@
 
     <title>{% block title %}S.I.M.{% endblock %}</title>
 
-    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    </head>
-<body>
-    </head>
+</head>
 
 <body>
 
+    <!-- Blocco per i messaggi Flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="messages-container">
@@ -25,24 +24,27 @@
             </div>
         {% endif %}
     {% endwith %}
-    <header>
-        <nav>
 
+    <!-- Un solo Header e un solo Nav -->
     <header>
         <nav>
             <h1>Sustainable Inventory Management</h1>
-            <a href="{{ url_for('inventory_bp.dashboard')}}">Dashboard</a>
-            <a href="{{url_for('inventory_bp.add_product_page')}}">Add Product</a>
-            </nav>
+            <a href="{{ url_for('inventory_bp.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('inventory_bp.add_product_page') }}">Add Product</a>
+            <a href="{{ url_for('inventory_bp.report_page') }}">Report</a>
+        </nav>
     </header>
 
+    <!-- Contenuto principale -->
     <main>
         {% block content %}
         {% endblock %}
     </main>
 
+    <!-- Footer -->
     <footer>
         <p>&copy; 2025 Sustainable Inventory App</p>
     </footer>
+
 </body>
 </html>

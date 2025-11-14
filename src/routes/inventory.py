@@ -103,3 +103,14 @@ def update_stock(product_id):
         flash('Quantità non valida.', 'danger') 
 
     return redirect(url_for('inventory_bp.dashboard'))
+
+
+# 3. NUOVA ROTTA PER LA PAGINA REPORT
+@inventory_bp.route('/report')
+def report_page():
+
+    # 1. Recupera tutti i record dalla tabella Log ordinandoli per data (i più recenti prima)
+    log_entries = Log.query.order_by(Log.timestamp.desc()).all()
+
+    # 2. Passa i record al template HTML
+    return render_template("report.html", log_entries=log_entries)

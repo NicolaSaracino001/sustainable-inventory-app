@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Report - S.I.M.{% endblock %}
+
+{% block content %}
+    <h2>Report Uso e Sprechi</h2>
+
+    <p>Questa pagina mostra tutte le transazioni di scarico (Uso e Spreco) registrate nel sistema, dalle più recenti alle più vecchie.</p>
+
+    <table border="1" width="100%">
+        <thead>
+            <tr>
+                <th>Data e Ora</th>
+                <th>Azione (Uso/Spreco)</th>
+                <th>Nome Prodotto</th>
+                <th>Quantità</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in log_entries %}
+            <tr>
+                <td>{{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+
+                {% if entry.action_type == 'waste' %}
+                    <td style="color: red; font-weight: bold;">Sprecato</td>
+                {% else %}
+                    <td style="color: green;">Usato</td>
+                {% endif %}
+
+                <td>{{ entry.product_name }}</td>
+                <td>{{ entry.quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if not log_entries %}
+        <p>Nessuna transazione di uso o spreco registrata.</p>
+    {% endif %}
+
+{% endblock %}

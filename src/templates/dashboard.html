@@ -4,7 +4,7 @@
 
 {% block content %}
     <h2>Dashboard Prodotti</h2>
-    
+
     <table border="1" width="100%">
         <thead>
             <tr>
@@ -12,15 +12,15 @@
                 <th>Quantità</th>
                 <th>Costo/Unità</th>
                 <th>Data Scadenza</th>
-                <th>Azione</th>
-                <th>Usa / Spreca (Aggiorna Quantità)</th> </th>
-
+                <th>Azione</th> 
+                <th>Usa / Spreca (Aggiorna Quantità)</th>
+            </tr>
         </thead>
         <tbody>
             {% for product in products %}
-            
+
             {% set days_left = (product.expiry_date.date() - today).days %}
-            
+
             {% if days_left < 0 %}
                 <tr class="tr-expired">
             {% elif days_left <= 7 %}
@@ -28,13 +28,14 @@
             {% elif days_left <= 30 %}
                 <tr class="tr-warning">
             {% else %}
-                <tr> {% endif %}
-            
+                <tr>
+            {% endif %}
+
                 <td>{{ product.name }}</td>
                 <td>{{ product.quantity }}</td>
                 <td>€ {{ "%.2f"|format(product.cost_per_unit) if product.cost_per_unit else 'N/A' }}</td>
                 <td>{{ product.expiry_date.strftime('%Y-%m-%d') }}</td>
-                
+
                 <td>
                     <a href="{{ url_for('inventory_bp.delete_product', product_id=product.id) }}" 
                        onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?');">
@@ -42,23 +43,25 @@
                     </a>
                 </td>
 
-                <td> 
-                    <form action="{{ url_for('inventory_bp.update_stock',product_id=product.id)}}" method="Post" style="display: flex; align-items: center";>
-                        <input type="number" name="quantity_to_update" step="0.01" min="0"
-                        placeholder="Q.ta" style="width:60px; margin-right: 5px;" required>
+                <td>
+                    <form action="{{ url_for('inventory_bp.update_stock', product_id=product.id) }}" method="POST" style="display: flex; align-items: center;">
+
+                        <input type="number" name="quantity_to_update" step="0.01" min="0" 
+                               placeholder="Q.tà" style="width: 60px; margin-right: 5px;" required>
+
                         <button type="submit" name="action" value="use">Usa</button>
                         <button type="submit" name="action" value="waste">Spreca</button>
+
                     </form>
-                    
                 </td>
-            
+
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    
+
     {% if not products %}
         <p>Nessun prodotto nell'inventario. Aggiungine uno!</p>
     {% endif %}
-    
+
 {% endblock %}
