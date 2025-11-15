@@ -20,5 +20,8 @@ class Log(db.Model):
     # ID del prodotto originale, se esiste ancora
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
 
+    # Registriamo il costo per unità al momento della transazione
+    cost_per_unit = db.Column(db.Float, nullable=True)
+
     def __repr__(self):
         return f'<Log {self.action_type}: {self.quantity} of {self.product_name}>'

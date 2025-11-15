@@ -87,7 +87,8 @@ def update_stock(product_id):
                 action_type=action,
                 product_name=product.name,
                 quantity=quantity_to_remove,
-                product_id=product.id
+                product_id=product.id,
+                cost_per_unit=product.cost_per_unit
             )
 
             # 4. AGGIUNGIAMO IL LOG ALLA SESSIONE
