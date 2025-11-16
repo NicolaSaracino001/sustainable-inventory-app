@@ -112,18 +112,24 @@ def update_stock(product_id):
 # 3. NUOVA ROTTA PER LA PAGINA REPORT
 @inventory_bp.route('/report')
 def report_page():
-
-    # 1. Recupera tutti i record dalla tabella Log ordinandoli per data (i più recenti prima)
+    # 1. Recupera tutti i record
     log_entries = Log.query.order_by(Log.timestamp.desc()).all()
 
-    # 2. Calcola i totali usando SQLAlchemy (func.sum) per sommare le quantità basandoci 
-    # sul tipo di azione ('use' o 'waste')
-    total_used_query = db.session.query(func.sum(Log.quantity)).filter(Log.action_type == 'use').scalar()
-    total_wasted_query = db.session.query(func.sum(Log.quantity)).filter(Log.action_type == 'waste').scalar()
+    # 2. CALCOLA I TOTALI (vecchio metodo, solo quantità)
+    total_used_q = db.session.query(func.sum(Log.quantity)).filter(Log.action_type == 'use').scalar() or 0
+    total_wasted_q = db.session.query(func.sum(Log.quantity)).filter(Log.action_type == 'waste').scalar() or 0
 
-    # Gestiamo il caso in cui non ci siano dati (risulterebbe 'None')
-    total_used = total_used_query if total_used_query is not None else 0 
-    total_wasted = total_wasted_query if total_wasted_query is not None else 0
+    # 3. CALCOLA I COSTI TOTALI (nuovo metodo)
+    #    Questo somma (quantità * costo) per ogni riga
+    total_used_cost_q = db.session.query(func.sum(Log.quantity * Log.cost_per_unit)).filter(Log.action_type == 'use').scalar() or 0
+    total_wasted_cost_q = db.session.query(func.sum(Log.quantity * Log.cost_per_unit)).filter(Log.action_type == 'waste').scalar() or 0
 
-    # 3. Passa i record e i nuovi totali al template HTML
-    return render_template("report.html", log_entries=log_entries, total_used=total_used, total_wasted=total_wasted)
+    # 4. Passa tutti i dati al template
+    return render_template(
+        "report.html", 
+        log_entries=log_entries,
+        total_used_quantity=total_used_q,
+        total_wasted_quantity=total_wasted_q,
+        total_used_cost=total_used_cost_q,
+        total_wasted_cost=total_wasted_cost_q
+    )
