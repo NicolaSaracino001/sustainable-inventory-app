@@ -1,35 +1,34 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager # <-- 1. NUOVO IMPORT
 from .config import Config
 
-# Inizializza l'estensione del database
 db = SQLAlchemy()
+login_manager = LoginManager() # <-- 2. INIZIALIZZA LOGIN MANAGER
 
 def create_app():
-    """Costruisce il core dell'applicazione Flask."""
-
     app = Flask(__name__)
-
-    # Carica la configurazione dal file config.py
     app.config.from_object(Config)
 
-    # Inizializza il database con la nostra app
     db.init_app(app)
+    login_manager.init_app(app) # <-- 3. COLLEGA LOGIN MANAGER ALL'APP
 
-    # Con questo 'with' ci assicuriamo che tutto sia 
-    # pronto prima di importare le rotte
+    # Diciamo a Flask-Login qual è la pagina di login
+    login_manager.login_view = 'auth_bp.login' 
+    # Messaggio da mostrare se si prova ad accedere a una pagina protetta
+    login_manager.login_message = 'Devi effettuare il login per vedere questa pagina.'
+    login_manager.login_message_category = 'danger' # Usa la nostra classe CSS per i flash
+
     with app.app_context():
-        # Importa i modelli del database 
-        from .models import product, log 
-        # Crea tutte le tabelle del database
-        db.create_all()
-        #... (codice successivo) ...
+        # Importa i modelli
+        from .models import product, log, user # <-- 4. AGGIUNGI 'user'
 
-        # Crea tutte le tabelle del database (se non esistono già)
         db.create_all() 
 
-        # Importa e registra le rotte (Blueprints)
+        # Importa e registra le rotte
         from .routes import inventory
         app.register_blueprint(inventory.inventory_bp)
+
+        # (Aggiungeremo le rotte di 'auth' qui tra poco)
 
         return app
