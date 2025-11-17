@@ -1,5 +1,6 @@
 # 1a. IMPORTA 'flash' da Flask
 from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required 
 from datetime import datetime, date
 from .. import db 
 # 1b. IMPORTA ANCHE IL NUOVO MODELLO 'Log'
@@ -16,12 +17,14 @@ inventory_bp = Blueprint(
 )
 
 @inventory_bp.route('/')
+@login_required 
 def dashboard():
     products = Product.query.order_by(Product.expiry_date.asc()).all()
     return render_template("dashboard.html", products=products, today=date.today())
 
 
 @inventory_bp.route('/add', methods=['GET', 'POST'])
+@login_required 
 def add_product_page():
 
     if request.method == 'POST':
@@ -52,6 +55,7 @@ def add_product_page():
 
 
 @inventory_bp.route('/delete/<int:product_id>')
+@login_required
 def delete_product(product_id):
     # ... (Nessuna modifica in questa funzione) ...
     product_to_delete = Product.query.get_or_404(product_id)
@@ -67,6 +71,7 @@ def delete_product(product_id):
 
 # 2. MODIFICHIAMO QUESTA FUNZIONE
 @inventory_bp.route('/update_stock/<int:product_id>', methods=['POST'])
+@login_required
 def update_stock(product_id):
     product = Product.query.get_or_404(product_id)
 
@@ -111,6 +116,7 @@ def update_stock(product_id):
 
 # 3. NUOVA ROTTA PER LA PAGINA REPORT
 @inventory_bp.route('/report')
+@login_required 
 def report_page():
     # 1. Recupera tutti i record
     log_entries = Log.query.order_by(Log.timestamp.desc()).all()

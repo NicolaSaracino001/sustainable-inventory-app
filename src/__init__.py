@@ -14,7 +14,7 @@ def create_app():
     login_manager.init_app(app) # <-- 3. COLLEGA LOGIN MANAGER ALL'APP
 
     # Diciamo a Flask-Login qual è la pagina di login
-    login_manager.login_view = 'auth_bp.login' 
+    login_manager.login_view = 'auth_bp.login_page' 
     # Messaggio da mostrare se si prova ad accedere a una pagina protetta
     login_manager.login_message = 'Devi effettuare il login per vedere questa pagina.'
     login_manager.login_message_category = 'danger' # Usa la nostra classe CSS per i flash
