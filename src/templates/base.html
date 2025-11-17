@@ -29,9 +29,15 @@
     <header>
         <nav>
             <h1>Sustainable Inventory Management</h1>
-            <a href="{{ url_for('inventory_bp.dashboard') }}">Dashboard</a>
-            <a href="{{ url_for('inventory_bp.add_product_page') }}">Add Product</a>
-            <a href="{{ url_for('inventory_bp.report_page') }}">Report</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('inventory_bp.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('inventory_bp.add_product_page') }}">Add Product</a>
+                <a href="{{ url_for('inventory_bp.report_page') }}">Report</a>
+                <a href="{{ url_for('auth_bp.logout_page') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('auth_bp.login_page') }}">Login</a>
+                <a href="{{ url_for('auth_bp.register_page') }}">Registrati</a>
+            {% endif %}
         </nav>
     </header>
 

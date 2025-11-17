@@ -21,14 +21,16 @@ def create_app():
 
     with app.app_context():
         # Importa i modelli
-        from .models import product, log, user # <-- 4. AGGIUNGI 'user'
+        from .models import product, log, user 
 
         db.create_all() 
 
-        # Importa e registra le rotte
+        # Importa e registra le rotte dell'inventario
         from .routes import inventory
         app.register_blueprint(inventory.inventory_bp)
 
-        # (Aggiungeremo le rotte di 'auth' qui tra poco)
+        # Aggiunta delle rotte fi auth
+        from .routes import auth
+        app.register_blueprint(auth.auth_bp)
 
         return app
