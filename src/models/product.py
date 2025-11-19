@@ -11,6 +11,7 @@ class Product(db.Model):
 
     # Definiamo le colonne
     id = db.Column(db.Integer, primary_key=True)
+    barcode= db.Column(db.String(20), unique=True, nullable=True)   # String(20) perchè i codici a barre possono iniziare con 0
     name = db.Column(db.String(100), nullable=False)
     quantity = db.Column(db.Float, nullable=False, default=0)
     cost_per_unit = db.Column(db.Float, nullable=True)
