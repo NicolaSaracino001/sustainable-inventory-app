@@ -28,7 +28,9 @@ def dashboard():
 def add_product_page():
 
     if request.method == 'POST':
-        # ... (Nessuna modifica in questa funzione) ...
+        # 1. RECUPERIAMO IL BARCODE DAL MODULO
+        barcode= request.form.get('product_barcode')
+
         name = request.form.get('product_name')
         quantity = request.form.get('product_quantity')
         cost = request.form.get('product_cost')
@@ -38,7 +40,9 @@ def add_product_page():
         cost_float = float(cost) if cost else None
         expiry_date = datetime.strptime(expiry_date_str, '%Y-%m-%d').date()
 
+        # 2. PASSIAMO IL BARCODE AL NUOVO PRODOTTO
         new_product = Product(
+            barcode=barcode,
             name=name,
             quantity=quantity_float,
             cost_per_unit=cost_float,

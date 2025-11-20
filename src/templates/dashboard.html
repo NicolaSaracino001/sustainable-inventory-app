@@ -8,6 +8,7 @@
     <table border="1" width="100%">
         <thead>
             <tr>
+                <th>Barcode</th>
                 <th>Nome Prodotto</th>
                 <th>Quantità</th>
                 <th>Costo/Unità</th>
@@ -30,6 +31,8 @@
             {% else %}
                 <tr>
             {% endif %}
+
+                <td><strong>{{ product.barcode if product.barcode else '-' }}</strong></td>
 
                 <td>{{ product.name }}</td>
                 <td>{{ product.quantity }}</td>
