@@ -1,46 +1,57 @@
 # 🚀 Sustainable Inventory Management (S.I.M.)
 
-MVP for sustainable inventory management focusing on expiry date tracking and food waste reduction for the HoReCa sector.
+**A smart inventory MVP designed to reduce food waste in the HoReCa sector through expiry tracking and cost analysis.**
 
 ---
 
 ## 🎯 The Goal: Why This Project Matters
 
-Food waste is a massive global problem, especially in the HoReCa (Hotels, Restaurants, Catering) industry. This project aims to solve this by giving kitchens and managers **clear, immediate, and actionable insights** into their stock.
+Food waste is a massive financial and environmental problem. **S.I.M.** helps chefs and managers track their stock intelligently. 
 
-By actively monitoring expiry dates and, crucially, **tracking the *cost* of waste**, this tool helps businesses save money, reduce their environmental impact, and operate more sustainably.
+By monitoring expiry dates and calculating the exact **cost of waste**, this tool turns inventory management into a sustainability strategy.
 
-## 💡 Real-World Application
+## 💡 Key Features (Implemented)
 
-This tool is designed for daily use by:
+### 🔐 Security & Access
+* **User Authentication:** Secure Login and Registration system.
+* **Protected Data:** Only authorized users can access the inventory dashboard and make changes.
 
-* **Chefs and Kitchen Staff:** To see which ingredients need to be used *today* (via color-coded alerts).
-* **Inventory Managers:** To log "Used" vs. "Wasted" items, optimizing purchasing.
-* **Business Owners:** To get a clear **financial report** on the total cost of food waste vs. food used.
+### 📦 Inventory Management (CRUD)
+* **Barcode Support:** Ability to input and view Barcodes/SKUs for every product.
+* **Full Tracking:** Create, Read, Update, and Delete products.
+* **Smart Dashboard:** Immediate visual alerts for products:
+    * 🔴 **Expiring soon (High Risk)**
+    * 🟡 **Warning (Medium Risk)**
+    * ⚪ **Safe**
+
+### 📉 Sustainability & Finance
+* **Use vs. Waste Logic:** Distinct actions to log whether a product was "Used" (Sold) or "Wasted" (Thrown away).
+* **Financial Reporting:** A dedicated Report page that calculates:
+    * Total **Cost (€)** Used.
+    * Total **Cost (€)** Wasted.
+* **Action Logs:** Complete history of every transaction with timestamps.
 
 ---
 
-## 🚀 Current Features (Beyond MVP)
+## 🛣️ Roadmap & Future Goals
 
-* **Full CRUD Operations:** Full capability to **C**reate, **R**ead, **U**pdate (Use/Waste), and **D**elete products.
-* **Expiry Date Alerts:** The dashboard automatically highlights products nearing expiration (Red, Yellow) or expired (Grey).
-* **Cost Tracking:** The app logs the *cost-per-unit* for every "Use" or "Waste" transaction.
-* **Financial Reporting:** A dedicated report page that calculates and displays:
-    * Total **Quantity** Used vs. Wasted.
-    * Total **Cost (€)** Used vs. Wasted.
-* **Feedback System:** User-friendly flash messages (success, danger, info) confirm every action.
+We are currently working on Phase 6. Here is the plan for the next steps:
 
-## 🛣️ Future Roadmap
-
-* **Fase 5: User Authentication:** Implement a full login/logout system (using Flask-Login) so only authorized users can access the data.
-* **Fase 6: Barcode/Scanner Integration:** Add the ability to use a barcode scanner (or the phone camera) to quickly add, find, or manage inventory items.
-* **Fase 7: Advanced Reporting:** Add visual charts and graphs (e.g., using Chart.js) to the report page to better visualize the cost of waste over time.
+- [x] **Phase 1-4: MVP Core** (Database, Dashboard, Alerts, Reports).
+- [x] **Phase 5: Security** (Login/Logout implementation).
+- [x] **Phase 6a: Barcode Data Entry** (Database & UI update).
+- [ ] **Phase 6b: Scan-to-Search** (Use a barcode scanner to instantly find products in the dashboard).
+- [ ] **Phase 7: Advanced Visualization** (Integrate charts/graphs like Chart.js to visualize waste trends over time).
+- [ ] **Phase 8: UI/UX Polish** (Logo design, advanced styling, and responsive mobile layout).
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Backend (Logic):** Python, Flask, Flask-SQLAlchemy, Flask-Login, Flask-WTF
-* **Database:** SQLite
-* **Frontend (UI):** Jinja2 Templates, HTML, CSS
-* **Version Control:** Git & GitHub Desktop
+* **Language:** Python 3
+* **Framework:** Flask
+* **Database:** SQLite (SQLAlchemy ORM)
+* **Authentication:** Flask-Login, Werkzeug Security
+* **Forms:** Flask-WTF
+* **Frontend:** HTML5, CSS3, Jinja2 Templates
+* **Version Control:** Git & GitHub
