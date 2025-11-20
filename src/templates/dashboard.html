@@ -4,6 +4,16 @@
 
 {% block content %}
     <h2>Dashboard Prodotti</h2>
+    <div style="margin-bottom: 20px; background-color: #f1f1f1; padding: 15px; border-radius: 5px;">
+    <form action="{{ url_for('inventory_bp.dashboard') }}" method="GET" style="display: flex; gap: 10px;">
+        <input type="text" name="search" class="form-control" placeholder="Spara col Barcode o Cerca per Nome..." autofocus style="flex: 1;">
+
+        <button type="submit" class="btn-submit">Cerca</button>
+
+        <a href="{{ url_for('inventory_bp.dashboard') }}" style="padding: 10px; text-decoration: none; color: #333; border: 1px solid #ccc; border-radius: 4px; background: white;">Mostra Tutti</a>
+    </form>
+</div>
+
 
     <table border="1" width="100%">
         <thead>

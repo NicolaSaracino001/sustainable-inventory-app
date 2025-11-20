@@ -2,6 +2,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required 
 from datetime import datetime, date
+from sqlalchemy import or_
 from .. import db 
 # 1b. IMPORTA ANCHE IL NUOVO MODELLO 'Log'
 from ..models.product import Product 
@@ -19,7 +20,20 @@ inventory_bp = Blueprint(
 @inventory_bp.route('/')
 @login_required 
 def dashboard():
-    products = Product.query.order_by(Product.expiry_date.asc()).all()
+    # Controlliamo se c'è una ricerca nell'URL (es. Search=1234)
+    search_query = request.args.get('search')
+    # Iniziamo la "query" di base (tutti i prodotti)
+    query = Product.query
+
+    if search_query:
+        query = query.filter(
+            or_(
+                Product.barcode == search_query,
+                Product.name.contains(search_query)
+            )
+        )
+    # Ordiamo per scadenza
+    products = query.order_by(Product.expiry_date.asc()).all()
     return render_template("dashboard.html", products=products, today=date.today())
 
 
