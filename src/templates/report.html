@@ -5,33 +5,34 @@
 {% block content %}
     <h2>Report Uso e Sprechi</h2>
 
-    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-around;">
+    <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        
+        <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap;">
+            
+            <div style="flex: 1; min-width: 250px;">
+                <h3>Riepilogo Finanziario</h3>
+                <p style="font-size: 1.1rem;">
+                    Valore Totale **Usato**: 
+                    <strong style="color: green;">€ {{ "%.2f"|format(total_used_cost) }}</strong>
+                </p>
+                <p style="font-size: 1.1rem;">
+                    Valore Totale **Sprecato**: 
+                    <strong style="color: red;">€ {{ "%.2f"|format(total_wasted_cost) }}</strong>
+                </p>
+                <hr>
+                <p>
+                    Totale Unità Movimentate: 
+                    <strong>{{ "%.2f"|format(total_used_quantity + total_wasted_quantity) }}</strong>
+                </p>
+            </div>
 
-        <div>
-            <h3>Riepilogo Quantità</h3>
-            <p>
-                Totale Unità **Usate**: 
-                <strong style="color: green;">{{ "%.2f"|format(total_used_quantity) }}</strong>
-            </p>
-            <p>
-                Totale Unità **Sprecate**: 
-                <strong style="color: red;">{{ "%.2f"|format(total_wasted_quantity) }}</strong>
-            </p>
+            <div style="flex: 1; min-width: 250px; text-align: center;">
+                <canvas id="costChart" style="max-width: 300px; max-height: 300px; margin: 0 auto;"></canvas>
+            </div>
+
         </div>
-
-        <div>
-            <h3>Riepilogo Costi</h3>
-            <p>
-                Valore Totale **Usato**: 
-                <strong style="color: green;">€ {{ "%.2f"|format(total_used_cost) }}</strong>
-            </p>
-            <p>
-                Valore Totale **Sprecato**: 
-                <strong style="color: red;">€ {{ "%.2f"|format(total_wasted_cost) }}</strong>
-            </p>
-        </div>
-
     </div>
+
     <hr>
 
     <h3>Dettaglio Transazioni</h3>
@@ -40,10 +41,10 @@
         <thead>
             <tr>
                 <th>Data e Ora</th>
-                <th>Azione (Uso/Spreco)</th>
+                <th>Azione</th>
                 <th>Nome Prodotto</th>
                 <th>Quantità</th>
-                <th>Costo/Unità (al momento)</th>
+                <th>Costo/Unità</th>
                 <th>Costo Totale</th>
             </tr>
         </thead>
@@ -51,25 +52,59 @@
             {% for entry in log_entries %}
             <tr>
                 <td>{{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-
+                
                 {% if entry.action_type == 'waste' %}
                     <td style="color: red; font-weight: bold;">Sprecato</td>
                 {% else %}
                     <td style="color: green;">Usato</td>
                 {% endif %}
-
+                
                 <td>{{ entry.product_name }}</td>
                 <td>{{ entry.quantity }}</td>
                 <td>€ {{ "%.2f"|format(entry.cost_per_unit) if entry.cost_per_unit else 'N/A' }}</td>
-
+                
                 {% set total_cost = entry.quantity * (entry.cost_per_unit or 0) %}
                 <td>€ {{ "%.2f"|format(total_cost) }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
     {% if not log_entries %}
-        <p>Nessuna transazione di uso o spreco registrata.</p>
+        <p>Nessuna transazione registrata.</p>
     {% endif %}
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Recuperiamo il contesto della "tela"
+        const ctx = document.getElementById('costChart').getContext('2d');
+
+        // Creiamo il grafico
+        new Chart(ctx, {
+            type: 'pie', // Tipo di grafico: Torta
+            data: {
+                labels: ['Valore Usato (€)', 'Valore Sprecato (€)'],
+                datasets: [{
+                    // Qui passiamo i dati da Python a JavaScript!
+                    data: [{{ total_used_cost }}, {{ total_wasted_cost }}],
+                    backgroundColor: [
+                        '#28a745', // Verde per Usato
+                        '#dc3545'  // Rosso per Sprecato
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom', // Legenda in basso
+                    }
+                }
+            }
+        });
+    </script>
 
 {% endblock %}
