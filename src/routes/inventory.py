@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 # 1. IMPORTIAMO 'func' DIRETTAMENTE DA QUI
 from sqlalchemy import or_, func
 # 2. Da qui importiamo SOLO 'db'
@@ -9,6 +9,7 @@ from ..models.product import Product
 from ..models.log import Log
 
 from ..models.log import Log
+
 
 # DIZIONARIO DEI CONSIGLI !!
 CATEGORY_TIPS = {
@@ -133,33 +134,50 @@ def update_stock(product_id):
 @inventory_bp.route('/report')
 @login_required
 def report_page():
-    # 1. Recupera tutti i record
+    # --- 1. LOGICA ESISTENTE (TOTALI E CLASSIFICHE) ---
     log_entries = Log.query.order_by(Log.timestamp.desc()).all()
     
-    # 2. CALCOLA I TOTALI QUANTITÀ
     total_used_quantity = db.session.query(func.sum(Log.quantity)).filter(Log.action_type == 'use').scalar() or 0
     total_wasted_quantity = db.session.query(func.sum(Log.quantity)).filter(Log.action_type == 'waste').scalar() or 0
     
-    # 3. CALCOLA I TOTALI COSTI
     total_used_cost = db.session.query(func.sum(Log.quantity * Log.cost_per_unit)).filter(Log.action_type == 'use').scalar() or 0
     total_wasted_cost = db.session.query(func.sum(Log.quantity * Log.cost_per_unit)).filter(Log.action_type == 'waste').scalar() or 0
     
-    # 4. CLASSIFICHE (Top 5)
     top_used_products = db.session.query(
         Log.product_name, 
         func.sum(Log.quantity).label('total_qty')
-    ).filter(Log.action_type == 'use') \
-     .group_by(Log.product_name) \
-     .order_by(func.sum(Log.quantity).desc()) \
-     .limit(5).all()
+    ).filter(Log.action_type == 'use').group_by(Log.product_name).order_by(func.sum(Log.quantity).desc()).limit(5).all()
 
     top_wasted_products = db.session.query(
         Log.product_name, 
         func.sum(Log.quantity).label('total_qty')
-    ).filter(Log.action_type == 'waste') \
-     .group_by(Log.product_name) \
-     .order_by(func.sum(Log.quantity).desc()) \
-     .limit(5).all()
+    ).filter(Log.action_type == 'waste').group_by(Log.product_name).order_by(func.sum(Log.quantity).desc()).limit(5).all()
+
+    # --- 2. NUOVA LOGICA PER IL GRAFICO A BARRE (ULTIMI 7 GIORNI) ---
+    
+    # Creiamo una lista degli ultimi 7 giorni (es. ['2023-10-01', '2023-10-02'...])
+    dates_labels = []
+    used_data_7days = []
+    wasted_data_7days = []
+    
+    today = date.today()
+    
+    # Facciamo un ciclo per gli ultimi 7 giorni (da 6 giorni fa a oggi)
+    for i in range(6, -1, -1):
+        current_day = today - timedelta(days=i)
+        dates_labels.append(current_day.strftime('%d/%m')) # Etichetta (es. 25/11)
+        
+        # Calcoliamo USATO per questo giorno specifico
+        daily_used = db.session.query(func.sum(Log.quantity * Log.cost_per_unit))\
+            .filter(Log.action_type == 'use')\
+            .filter(func.date(Log.timestamp) == current_day).scalar() or 0
+        used_data_7days.append(daily_used)
+        
+        # Calcoliamo SPRECATO per questo giorno specifico
+        daily_wasted = db.session.query(func.sum(Log.quantity * Log.cost_per_unit))\
+            .filter(Log.action_type == 'waste')\
+            .filter(func.date(Log.timestamp) == current_day).scalar() or 0
+        wasted_data_7days.append(daily_wasted)
 
     return render_template(
         "report.html", 
@@ -169,5 +187,9 @@ def report_page():
         total_used_cost=total_used_cost,
         total_wasted_cost=total_wasted_cost,
         top_used_products=top_used_products,
-        top_wasted_products=top_wasted_products
+        top_wasted_products=top_wasted_products,
+        # Passiamo i nuovi dati al template
+        dates_labels=dates_labels,
+        used_data_7days=used_data_7days,
+        wasted_data_7days=wasted_data_7days
     )
