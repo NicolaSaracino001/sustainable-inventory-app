@@ -26,19 +26,29 @@
     {% endwith %}
 
     <!-- Un solo Header e un solo Nav -->
-    <header>
-        <nav>
-            <h1>Sustainable Inventory Management</h1>
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('inventory_bp.dashboard') }}">Dashboard</a>
-                <a href="{{ url_for('inventory_bp.add_product_page') }}">Add Product</a>
-                <a href="{{ url_for('inventory_bp.report_page') }}">Report</a>
-                <a href="{{ url_for('auth_bp.logout_page') }}">Logout</a>
-            {% else %}
-                <a href="{{ url_for('auth_bp.login_page') }}">Login</a>
-                <a href="{{ url_for('auth_bp.register_page') }}">Registrati</a>
-            {% endif %}
-        </nav>
+    <header class="main-header">
+        <div class="header-container">
+
+            <div class="logo">
+                <a href="{{ url_for('inventory_bp.dashboard') }}" style="text-decoration: none; color: white;">
+                    <span style="font-size: 1.8rem;">🌱 S.I.M.</span>
+                </a>
+            </div>
+
+            <nav class="main-nav">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('inventory_bp.dashboard') }}" class="nav-link">Dashboard</a>
+                    <a href="{{ url_for('inventory_bp.add_product_page') }}" class="nav-link">Nuovo Prodotto</a>
+                    <a href="{{ url_for('inventory_bp.report_page') }}" class="nav-link">Report</a>
+
+                    <a href="{{ url_for('auth_bp.logout_page') }}" class="nav-link btn-logout">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('auth_bp.login_page') }}" class="nav-link">Login</a>
+                    <a href="{{ url_for('auth_bp.register_page') }}" class="nav-link btn-register">Registrati</a>
+                {% endif %}
+            </nav>
+
+        </div>
     </header>
 
     <!-- Contenuto principale -->

@@ -24,23 +24,56 @@ main {
 }
 
 /* Stile dell'intestazione (Header) */
-header {
-    background-color: #004d40; /* Un bel verde scuro per la sostenibilità */
+.main-header {
+    background-color: #004d40; /* Verde Sostenibile */
     color: #ffffff;
-    padding: 1rem;
-    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Ombra leggera */
+    padding: 0.5rem 0;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 2rem;
+.header-container {
+    width: 90%; /* Più largo del main */
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between; /* Logo a sx, Nav a dx */
+    align-items: center;
 }
 
-header nav a {
-    color: #ffffff;
+.logo {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.main-nav {
+    display: flex;
+    gap: 20px; /* Spazio tra i link */
+    align-items: center;
+}
+
+.nav-link {
+    color: #e0f2f1;
     text-decoration: none;
-    margin: 0 10px;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* Stile speciale per il bottone Logout e Registrati */
+.btn-logout, .btn-register {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 8px 15px;
+    border-radius: 20px;
+    text-decoration: none !important; /* Niente sottolineatura */
+}
+
+.btn-logout:hover, .btn-register:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    text-decoration: none;
 }
 
 /* Stile del piè di pagina (Footer) */
