@@ -8,7 +8,7 @@
     <form action="{{ url_for('inventory_bp.dashboard') }}" method="GET" style="display: flex; gap: 10px;">
         <input type="text" name="search" class="form-control" placeholder="Spara col Barcode o Cerca per Nome..." autofocus style="flex: 1;">
 
-        <button type="submit" class="btn-submit">Cerca</button>
+        <button type="submit" class="btn-submit"><i class="fas fa-search"></i> Cerca</button>
 
         <a href="{{ url_for('inventory_bp.dashboard') }}" style="padding: 10px; text-decoration: none; color: #333; border: 1px solid #ccc; border-radius: 4px; background: white;">Mostra Tutti</a>
     </form>
@@ -64,9 +64,12 @@
 
                 <td>
                     <a href="{{ url_for('inventory_bp.delete_product', product_id=product.id) }}" 
-                       onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?');">
-                       Elimina
+                        onclick="return confirm('Sei sicuro?');"
+                        style="color: #dc3545; text-decoration: none; font-size: 1.2rem;"
+                        title="Elimina Prodotto">
+                        <i class="fas fa-trash-alt"></i>
                     </a>
+
                 </td>
 
                 <td>
@@ -75,8 +78,13 @@
                         <input type="number" name="quantity_to_update" step="0.01" min="0" 
                                placeholder="Q.tà" style="width: 60px; margin-right: 5px;" required>
 
-                        <button type="submit" name="action" value="use">Usa</button>
-                        <button type="submit" name="action" value="waste">Spreca</button>
+                        <button type="submit" name="action" value="use" title="Registra come Usato">
+                            <i class="fas fa-check"></i> Usa
+                        </button>
+
+                        <button type="submit" name="action" value="waste" title="Registra come Sprecato">
+                            <i class="fas fa-trash"></i> Spreca
+                        </button>
 
                     </form>
                 </td>
