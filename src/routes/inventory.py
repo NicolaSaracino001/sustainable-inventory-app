@@ -39,6 +39,7 @@ def add_product_page():
     if request.method == 'POST':
         barcode = request.form.get('product_barcode')
         name = request.form.get('product_name')
+        category = request.form.get('product_category')
         quantity = request.form.get('product_quantity')
         cost = request.form.get('product_cost')
         expiry_date_str = request.form.get('product_expiry')
@@ -50,6 +51,7 @@ def add_product_page():
         new_product = Product(
             barcode=barcode,
             name=name,
+            category=category,
             quantity=quantity_float,
             cost_per_unit=cost_float,
             expiry_date=expiry_date

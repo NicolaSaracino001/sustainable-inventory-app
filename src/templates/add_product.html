@@ -19,6 +19,18 @@
             <input type="text" id="name" name="product_name" required>
         </div>
 
+        <div class="form-group">
+            <label for="category">Categoria:</label>
+            <select id="category" name="product_category" class="form-control">
+                <option value="general">Generale / Altro</option>
+                <option value="meat">Carne e Pesce</option>
+                <option value="dairy">Latticini e Uova</option>
+                <option value="fruit_veg">Frutta e Verdura</option>
+                <option value="bakery">Pane e Prodotti da Forno</option>
+                <option value="dry">Secco (Pasta, Riso, Scatolame)</option>
+            </select>
+        </div>
+
         <div>
             <label for="quantity">Quantity:</label>
             <input type="number" id="quantity" name="product_quantity" step="0.01" required>
