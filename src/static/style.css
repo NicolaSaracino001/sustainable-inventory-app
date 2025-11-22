@@ -111,33 +111,87 @@ Stili per gli Alert di Scadenza
 }
 
 /* Miglioriamo lo stile della tabella */
+/* --- STILE TABELLE MODERNE --- */
 table {
-    border-collapse: collapse; /* Bordi più puliti */
-    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.95rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05); /* Ombra leggera sotto la tabella */
+    background-color: white;
+}
+
+thead tr {
+    background-color: #004d40; /* Intestazione Verde Scuro (come la Navbar) */
+    text-align: left;
 }
 
 th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    color: #333;
+    padding: 12px 15px;
+    border-bottom: 1px solid #dddddd;
 }
 
-thead {
-    background-color: #f5f5f5;
-}
-
-
-/* Stile specifico per i link nella tabella (es. "Elimina") */
-main table a {
-    color: #dc3545; /* Un rosso "pericolo" ben visibile */
-    text-decoration: none; /* Togliamo la sottolinatura */
+/* Le intestazioni (th) devono essere BIANCHE */
+thead th {
+    color: #ffffff;
     font-weight: bold;
 }
 
-main table a:hover {
-    color: #c82333; /* Un rosso più scuro al passaggio del mouse */
-    text-decoration: underline; /* Aggiungiamo la sottolinatura */
+/* Le Celle Dati (td) devono essere SCURE */
+tbody td {
+    color: #333;
+}
+
+/* Effetto "Zebra" leggero (righe pari grigine) per leggere meglio */
+tbody tr:nth-of-type(even) {
+    background-color: #f9f9f9;
+}
+
+/* Effetto Hover: illumina la riga quando passi col mouse */
+tbody tr:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.2s;
+}
+
+/* Manteniamo i colori specifici per le scadenze (sovrascrivono lo stile base) */
+.tr-danger { background-color: #ffebee !important; color: #b71c1c; font-weight: bold;}
+.tr-warning { background-color: #fffde7 !important; color: #f57f17; }
+.tr-expired { background-color: #eeeeee !important; color: #757575; text-decoration: line-through; }
+
+
+/* --- STILE BOTTONI AZIONE (Usa/Spreca) --- */
+
+/* Seleziona il bottone "Usa" in base al suo valore */
+button[value="use"] {
+    background-color: #28a745; /* Verde */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 5px;
+}
+button[value="use"]:hover { background-color: #218838; }
+
+/* Seleziona il bottone "Spreca" in base al suo valore */
+button[value="waste"] {
+    background-color: #dc3545; /* Rosso */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 5px;
+}
+button[value="waste"]:hover { background-color: #c82333; }
+
+/* Campo input quantità più carino */
+input[name="quantity_to_update"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 
