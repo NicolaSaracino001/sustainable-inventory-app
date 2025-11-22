@@ -23,7 +23,7 @@
                 <th>Quantità</th>
                 <th>Costo/Unità</th>
                 <th>Data Scadenza</th>
-                <th>Azione</th> 
+                <th style="text-align: center;">Tip</th> <th>Azione</th>
                 <th>Usa / Spreca (Aggiorna Quantità)</th>
             </tr>
         </thead>
@@ -48,6 +48,19 @@
                 <td>{{ product.quantity }}</td>
                 <td>€ {{ "%.2f"|format(product.cost_per_unit) if product.cost_per_unit else 'N/A' }}</td>
                 <td>{{ product.expiry_date.strftime('%Y-%m-%d') }}</td>
+
+                <td style="text-align: center;">
+                    {% if days_left <= 7 %}
+                        <button 
+                            onclick="alert('{{ tips.get(product.category, tips['general']) }}')"
+                            style="background: none; border: none; cursor: pointer; font-size: 1.5rem;"
+                            title="Clicca per un consiglio anti-spreco!">
+                            💡
+                        </button>
+                    {% else %}
+                        <span style="color: #ccc;">-</span>
+                    {% endif %}
+                </td>
 
                 <td>
                     <a href="{{ url_for('inventory_bp.delete_product', product_id=product.id) }}" 

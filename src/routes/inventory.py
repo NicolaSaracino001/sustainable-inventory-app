@@ -1,12 +1,25 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from datetime import datetime, date
-# 1. IMPORTIAMO 'func' DIRETTAMENTE DA QUI (Corretto)
+# 1. IMPORTIAMO 'func' DIRETTAMENTE DA QUI
 from sqlalchemy import or_, func
 # 2. Da qui importiamo SOLO 'db'
 from .. import db 
 from ..models.product import Product 
 from ..models.log import Log
+
+from ..models.log import Log
+
+# DIZIONARIO DEI CONSIGLI !!
+CATEGORY_TIPS = {
+    'meat': "⚠️ Rischio alto! Cucina subito (es. Ragù, Polpette, Brodo) o congela immediatamente se non è già stato scongelato.",
+    'dairy': "🥛 Ottimo per dolci da forno, besciamella, quiche salate o per mantecare la pasta.",
+    'fruit_veg': "🥗 Non buttare! Fai minestroni, vellutate, frullati, marmellate o salse.",
+    'bakery': "🍞 Se è secco: fanne Pangrattato, Crostini, Bruschette o la classica Torta di pane.",
+    'dry': "📦 Verifica solo che la confezione sia integra e non ci siano farfalline. Spesso commestibile anche dopo la data.",
+    'general': "🔎 Controlla attentamente odore, colore e consistenza prima dell'uso."
+}
+
 
 inventory_bp = Blueprint(
     'inventory_bp', __name__,
@@ -29,7 +42,7 @@ def dashboard():
         )
     
     products = query.order_by(Product.expiry_date.asc()).all()
-    return render_template("dashboard.html", products=products, today=date.today())
+    return render_template("dashboard.html", products=products, today=date.today(), tips=CATEGORY_TIPS)
 
 
 @inventory_bp.route('/add', methods=['GET', 'POST'])
