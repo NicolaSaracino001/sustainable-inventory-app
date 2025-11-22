@@ -263,3 +263,48 @@ Stili per i Moduli (Login/Registrazione)
 .btn-submit:hover {
     background-color: #00796b;
 }
+
+
+/* --- STILE PAGINE LOGIN / REGISTRAZIONE (Centered Card) --- */
+
+/* Questo serve per centrare tutto verticalmente nella pagina */
+body {
+    /* Assicuriamoci che queste proprietà siano già nel blocco 'body' in alto, 
+       altrimenti funzioneranno comunque grazie a flex-direction: column */
+}
+
+/* La "Scheda" bianca che contiene il modulo */
+.form-container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 400px; /* Larghezza massima del modulo */
+    margin: 50px auto; /* Centrato orizzontalmente, staccato dall'alto */
+    padding: 30px;
+    border-radius: 10px; /* Angoli arrotondati */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Ombra soffice */
+    text-align: left;
+}
+
+/* Titoli dentro la scheda */
+.form-container h2 {
+    text-align: center;
+    color: #004d40;
+    margin-bottom: 20px;
+}
+
+/* Link "Non hai un account?" */
+.form-container p {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+.form-container a {
+    color: #004d40;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.form-container a:hover {
+    text-decoration: underline;
+}
