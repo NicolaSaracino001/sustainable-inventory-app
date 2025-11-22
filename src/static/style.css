@@ -311,3 +311,60 @@ body {
 .form-container a:hover {
     text-decoration: underline;
 }
+
+
+/* --- STILE DASHBOARD CARDS --- */
+.cards-container {
+    display: flex;
+    gap: 20px; /* Spazio tra le carte */
+    margin-bottom: 25px;
+    flex-wrap: wrap; /* Va a capo su schermi piccoli */
+}
+
+.kpi-card {
+    flex: 1; /* Si allargano per riempire lo spazio */
+    min-width: 200px;
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px); /* Effetto "galleggiamento" al passaggio del mouse */
+}
+
+.kpi-card h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+    font-weight: normal;
+}
+
+.kpi-card p {
+    margin: 5px 0 0 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    opacity: 0.3; /* Icona semi-trasparente */
+}
+
+/* Colori Specifici */
+.card-blue {
+    background: linear-gradient(45deg, #0288d1, #29b6f6);
+}
+
+.card-green {
+    background: linear-gradient(45deg, #388e3c, #66bb6a);
+}
+
+.card-red {
+    background: linear-gradient(45deg, #d32f2f, #ef5350);
+}

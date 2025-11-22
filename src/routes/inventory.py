@@ -31,9 +31,10 @@ inventory_bp = Blueprint(
 @inventory_bp.route('/')
 @login_required
 def dashboard():
+    # --- 1. LOGICA DI RICERCA (Esistente) ---
     search_query = request.args.get('search')
     query = Product.query
-    
+
     if search_query:
         query = query.filter(
             or_(
@@ -41,10 +42,31 @@ def dashboard():
                 Product.name.contains(search_query)
             )
         )
-    
-    products = query.order_by(Product.expiry_date.asc()).all()
-    return render_template("dashboard.html", products=products, today=date.today(), tips=CATEGORY_TIPS)
 
+    products = query.order_by(Product.expiry_date.asc()).all()
+
+    # --- 2. CALCOLO DATI PER LE CARDS (Nuovo!) ---
+
+    # Card 1: Totale Prodotti (Conta le righe)
+    total_products = Product.query.count()
+
+    # Card 2: Valore Totale Inventario (Somma Quantità * Costo)
+    total_value = db.session.query(func.sum(Product.quantity * Product.cost_per_unit)).scalar() or 0
+
+    # Card 3: Prodotti in Scadenza (nei prossimi 7 giorni)
+    seven_days_from_now = date.today() + timedelta(days=7)
+    expiring_soon = Product.query.filter(Product.expiry_date <= seven_days_from_now).count()
+
+    return render_template(
+        "dashboard.html", 
+        products=products, 
+        today=date.today(), 
+        tips=CATEGORY_TIPS,
+        # Passiamo i nuovi dati al template HTML
+        total_products=total_products,
+        total_value=total_value,
+        expiring_soon=expiring_soon
+    )
 
 @inventory_bp.route('/add', methods=['GET', 'POST'])
 @login_required

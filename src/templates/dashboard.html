@@ -4,6 +4,34 @@
 
 {% block content %}
     <h2>Dashboard Prodotti</h2>
+<div class="cards-container">
+
+    <div class="kpi-card card-blue">
+        <div class="card-icon"><i class="fas fa-boxes"></i></div>
+        <div class="card-info">
+            <h3>Totale Prodotti</h3>
+            <p>{{ total_products }}</p>
+        </div>
+    </div>
+
+    <div class="kpi-card card-green">
+        <div class="card-icon"><i class="fas fa-euro-sign"></i></div>
+        <div class="card-info">
+            <h3>Valore Magazzino</h3>
+            <p>€ {{ "%.2f"|format(total_value) }}</p>
+        </div>
+    </div>
+
+    <div class="kpi-card card-red">
+        <div class="card-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="card-info">
+            <h3>In Scadenza (7gg)</h3>
+            <p>{{ expiring_soon }}</p>
+        </div>
+    </div>
+
+</div>
+
     <div style="margin-bottom: 20px; background-color: #f1f1f1; padding: 15px; border-radius: 5px;">
     <form action="{{ url_for('inventory_bp.dashboard') }}" method="GET" style="display: flex; gap: 10px;">
         <input type="text" name="search" class="form-control" placeholder="Spara col Barcode o Cerca per Nome..." autofocus style="flex: 1;">
