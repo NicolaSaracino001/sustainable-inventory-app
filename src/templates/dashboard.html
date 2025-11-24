@@ -39,6 +39,9 @@
         <button type="submit" class="btn-submit"><i class="fas fa-search"></i> Cerca</button>
 
         <a href="{{ url_for('inventory_bp.dashboard') }}" style="padding: 10px; text-decoration: none; color: #333; border: 1px solid #ccc; border-radius: 4px; background: white;">Mostra Tutti</a>
+        <a href="{{ url_for('inventory_bp.export_inventory') }}" style="padding: 10px; text-decoration: none; color: white; background-color: #198754; border-radius: 4px; font-weight: bold;">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </a>
     </form>
 </div>
 

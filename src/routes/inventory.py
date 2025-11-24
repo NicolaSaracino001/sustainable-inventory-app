@@ -10,6 +10,11 @@ from ..models.log import Log
 
 from ..models.log import Log
 
+# Import che servono per Excel e per gestire i file in memoria
+import pandas as pd # Per gestire i dati
+from io import BytesIO # Per creare file in memoria
+from flask import send_file # Per inviare il file all'utente
+
 
 # DIZIONARIO DEI CONSIGLI !!
 CATEGORY_TIPS = {
@@ -214,4 +219,44 @@ def report_page():
         dates_labels=dates_labels,
         used_data_7days=used_data_7days,
         wasted_data_7days=wasted_data_7days
+    )
+
+
+@inventory_bp.route('/export/inventory')
+@login_required
+def export_inventory():
+    # 1. Recupera tutti i prodotti
+    products = Product.query.all()
+
+    # 2. Crea una lista di dizionari (dati puliti)
+    data = []
+    for p in products:
+        data.append({
+            'Barcode': p.barcode,
+            'Nome Prodotto': p.name,
+            'Categoria': p.category,
+            'Quantità': p.quantity,
+            'Costo Unitario (€)': p.cost_per_unit,
+            'Valore Totale (€)': (p.quantity * (p.cost_per_unit or 0)),
+            'Scadenza': p.expiry_date.strftime('%Y-%m-%d')
+        })
+
+    # 3. Crea il DataFrame (la tabella Excel) con Pandas
+    df = pd.DataFrame(data)
+
+    # 4. Salva in un "buffer" di memoria (non su disco)
+    output = BytesIO()
+    # Usa il motore 'openpyxl' per scrivere l'Excel
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Inventario Attuale')
+
+    # Torna all'inizio del file in memoria
+    output.seek(0)
+
+    # 5. Invia il file al browser per il download
+    return send_file(
+        output, 
+        download_name="inventario_sim.xlsx", 
+        as_attachment=True,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
