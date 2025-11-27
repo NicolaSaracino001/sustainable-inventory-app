@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required
 from datetime import datetime, date, timedelta
 # 1. IMPORTIAMO 'func' DIRETTAMENTE DA QUI
@@ -81,27 +81,53 @@ def add_product_page():
         barcode = request.form.get('product_barcode')
         name = request.form.get('product_name')
         category = request.form.get('product_category')
-        quantity = request.form.get('product_quantity')
-        cost = request.form.get('product_cost')
-        expiry_date_str = request.form.get('product_expiry')
         
-        quantity_float = float(quantity) if quantity else 0
-        cost_float = float(cost) if cost else None
-        expiry_date = datetime.strptime(expiry_date_str, '%Y-%m-%d').date()
+        # Gestione sicura dei numeri (se vuoti mette 0)
+        quantity_str = request.form.get('product_quantity')
+        quantity = float(quantity_str) if quantity_str else 0.0
         
-        new_product = Product(
-            barcode=barcode,
-            name=name,
-            category=category,
-            quantity=quantity_float,
-            cost_per_unit=cost_float,
-            expiry_date=expiry_date
-        )
+        cost_str = request.form.get('product_cost')
+        cost = float(cost_str) if cost_str else None
         
-        db.session.add(new_product)
+        expiry_str = request.form.get('product_expiry')
+        expiry_date = datetime.strptime(expiry_str, '%Y-%m-%d').date()
+        
+        # 1. CERCHIAMO SE ESISTE GIÀ IL PRODOTTO (per Barcode)
+        existing_product = None
+        if barcode:
+            existing_product = Product.query.filter_by(barcode=barcode).first()
+            
+        if existing_product:
+            # 2. CASO A: ESISTE -> AGGIORNIAMO
+            # Sommiamo la nuova quantità a quella vecchia
+            existing_product.quantity += quantity
+            
+            # Aggiorniamo anche gli altri dati (magari il prezzo è cambiato o la scadenza è più breve)
+            existing_product.name = name
+            existing_product.category = category
+            existing_product.cost_per_unit = cost
+            # Nota: Sulla scadenza è una scelta. Di solito si tiene la più vicina o si aggiorna all'ultima.
+            # Qui aggiorniamo all'ultima inserita (l'utente decide).
+            existing_product.expiry_date = expiry_date
+            
+            flash(f'Prodotto esistente aggiornato! Nuova quantità totale: {existing_product.quantity}', 'info')
+            
+        else:
+            # 3. CASO B: NON ESISTE -> CREIAMO NUOVO
+            new_product = Product(
+                barcode=barcode,
+                name=name,
+                category=category,
+                quantity=quantity,
+                cost_per_unit=cost,
+                expiry_date=expiry_date
+            )
+            db.session.add(new_product)
+            flash('Nuovo prodotto aggiunto con successo!', 'success')
+
+        # 4. SALVIAMO LE MODIFICHE
         db.session.commit()
         
-        flash('Prodotto aggiunto con successo!', 'success')
         return redirect(url_for('inventory_bp.dashboard'))
     
     return render_template("add_product.html")
@@ -260,3 +286,24 @@ def export_inventory():
         as_attachment=True,
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+
+# API per l'Auto-compilazione (Memoria Prodotto)
+@inventory_bp.route('/api/get_product_info/<barcode>')
+@login_required
+def get_product_info(barcode):
+    # Cerchiamo se esiste già un prodotto con questo barcode
+    # (Ne prendiamo uno qualsiasi, tanto nome e categoria sono uguali)
+    product = Product.query.filter_by(barcode=barcode).first()
+
+    if product:
+        # Trovato! Restituiamo i dati
+        return jsonify({
+            'found': True,
+            'name': product.name,
+            'category': product.category,
+            'cost': product.cost_per_unit
+        })
+    else:
+        # Non trovato
+        return jsonify({'found': False})

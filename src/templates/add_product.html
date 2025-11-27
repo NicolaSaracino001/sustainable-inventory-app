@@ -54,4 +54,40 @@
         </form>
     </div>
 
+
+    <script>
+        const barcodeInput = document.getElementById('barcode');
+        const nameInput = document.getElementById('name');
+        const categoryInput = document.getElementById('category');
+        const costInput = document.getElementById('cost');
+
+    // Ascoltiamo quando l'utente finisce di scrivere/scansionare il barcode
+        barcodeInput.addEventListener('change', function() {
+            const code = barcodeInput.value;
+
+            if (code) {
+                // Chiamiamo la nostra API Python
+                fetch('/api/get_product_info/' + code)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.found) {
+                            // Se il prodotto esiste, compiliamo i campi!
+                            nameInput.value = data.name;
+                            categoryInput.value = data.category;
+
+                            // Compiliamo il costo solo se è vuoto (per non sovrascrivere se l'utente lo stava cambiando)
+                            if (!costInput.value && data.cost) {
+                            costInput.value = data.cost;
+                            }
+
+                            // Feedback visivo (lampeggio verde)
+                            nameInput.style.backgroundColor = "#e8f5e9";
+                            setTimeout(() => nameInput.style.backgroundColor = "", 1000);
+                        }
+                    })
+                    .catch(error => console.error('Errore:', error));
+            }
+        });
+    </script>
+
 {% endblock %}
