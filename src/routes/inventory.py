@@ -307,3 +307,9 @@ def get_product_info(barcode):
     else:
         # Non trovato
         return jsonify({'found': False})
+    
+
+@inventory_bp.route('/academy')
+@login_required
+def academy_page():
+    return render_template("academy.html")
