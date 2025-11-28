@@ -1,57 +1,68 @@
-# 🚀 Sustainable Inventory Management (S.I.M.)
+# 🌱 Sustainable Inventory Management (S.I.M.)
 
-**A smart inventory MVP designed to reduce food waste in the HoReCa sector through expiry tracking and cost analysis.**
+**A smart, eco-friendly inventory management system designed for the HoReCa sector to reduce food waste and optimize costs.**
 
 ---
 
-## 🎯 The Goal: Why This Project Matters
+## 🎯 The Goal
 
-Food waste is a massive financial and environmental problem. **S.I.M.** helps chefs and managers track their stock intelligently. 
+Food waste is a massive financial and environmental problem. **S.I.M.** empowers chefs and managers to track their stock intelligently. By monitoring expiry dates, calculating the exact **cost of waste**, and gamifying the process, this tool turns inventory management into a sustainability strategy.
 
-By monitoring expiry dates and calculating the exact **cost of waste**, this tool turns inventory management into a sustainability strategy.
+---
 
-## 💡 Key Features (Implemented)
+## 💡 Key Features
 
 ### 🔐 Security & Access
-* **User Authentication:** Secure Login and Registration system.
-* **Protected Data:** Only authorized users can access the inventory dashboard and make changes.
+* **Secure Authentication:** Complete Login/Registration system.
+* **Role-Based Access:** Only authorized staff can view or modify sensitive data.
 
-### 📦 Inventory Management (CRUD)
-* **Barcode Support:** Ability to input and view Barcodes/SKUs for every product.
-* **Full Tracking:** Create, Read, Update, and Delete products.
-* **Smart Dashboard:** Immediate visual alerts for products:
-    * 🔴 **Expiring soon (High Risk)**
-    * 🟡 **Warning (Medium Risk)**
-    * ⚪ **Safe**
+### 📦 Smart Inventory (CRUD +)
+* **Barcode Memory:** "Scan-to-fill" feature that remembers products you've scanned before, auto-filling details to save time.
+* **Visual Alerts:** Dashboard rows change color based on expiry urgency (🔴 High Risk, 🟡 Warning, ⚪ Safe).
+* **Search & Scan:** Instant search bar compatible with USB/Bluetooth barcode scanners.
 
-### 📉 Sustainability & Finance
-* **Use vs. Waste Logic:** Distinct actions to log whether a product was "Used" (Sold) or "Wasted" (Thrown away).
-* **Financial Reporting:** A dedicated Report page that calculates:
-    * Total **Cost (€)** Used.
-    * Total **Cost (€)** Wasted.
-* **Action Logs:** Complete history of every transaction with timestamps.
+### 📉 Sustainability & Intelligence
+* **Smart Tips 💡:** Clicking on expiring items provides category-specific advice on how to save them (e.g., "Meat expiring? Freeze or cook ragù").
+* **Smart Restock 📧:** Automatically detects low stock (< 5 units) and generates a pre-filled email to order from suppliers.
+* **Academy Section 🎓:** A dedicated learning hub with video tutorials on zero-waste cooking and storage techniques.
+
+### 📊 Reports & Gamification
+* **Financial Reports:** Visual charts (Pie & Bar) showing "Used vs. Wasted" costs in real-time.
+* **Excel Export:** Download the full inventory or logs as `.xlsx` files for accounting.
+* **Gamification 🏆:** Weekly Waste Budget tracker. Stay under budget to earn the **"Eco-Hero"** badge!
 
 ---
 
-## 🛣️ Roadmap & Future Goals
+## 🛣️ Project Roadmap
 
-We are currently working on Phase 6. Here is the plan for the next steps:
+We are rapidly evolving. Here is our progress:
 
-- [x] **Phase 1-4: MVP Core** (Database, Dashboard, Alerts, Reports).
-- [x] **Phase 5: Security** (Login/Logout implementation).
-- [x] **Phase 6a: Barcode Data Entry** (Database & UI update).
-- [ ] **Phase 6b: Scan-to-Search** (Use a barcode scanner to instantly find products in the dashboard).
-- [ ] **Phase 7: Advanced Visualization** (Integrate charts/graphs like Chart.js to visualize waste trends over time).
-- [ ] **Phase 8: UI/UX Polish** (Logo design, advanced styling, and responsive mobile layout).
+- [x] **Core MVP:** Database, Dashboard, Basic Alerts.
+- [x] **Security:** Flask-Login implementation.
+- [x] **Efficiency:** Barcode integration & Product Memory.
+- [x] **Business Logic:** Excel Export & Smart Restock emails.
+- [x] **Education:** Academy Video Section.
+- [x] **Engagement:** Gamification & Badges.
+- [ ] **Phase 13:** User Profile & Custom Settings (Set your own waste budget).
+- [ ] **Phase 14:** PWA (Progressive Web App) - Installable on mobile devices.
+- [ ] **Phase 15:** Cloud Deployment (Online access).
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Language:** Python 3
-* **Framework:** Flask
-* **Database:** SQLite (SQLAlchemy ORM)
-* **Authentication:** Flask-Login, Werkzeug Security
-* **Forms:** Flask-WTF
-* **Frontend:** HTML5, CSS3, Jinja2 Templates
+* **Backend:** Python 3, Flask, SQLAlchemy
+* **Database:** SQLite
+* **Data Analysis:** Pandas, OpenPyXL
+* **Frontend:** HTML5, CSS3 (Responsive), Jinja2, Chart.js, FontAwesome
 * **Version Control:** Git & GitHub
+
+---
+
+### 🚀 How to Run Locally
+
+1.  Clone the repository.
+2.  Create a virtual environment: `python -m venv venv`
+3.  Install dependencies: `pip install -r requirements.txt`
+4.  Run the app: `python run.py`
+5.  Access at: `http://127.0.0.1:5000`
