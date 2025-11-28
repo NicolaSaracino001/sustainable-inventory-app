@@ -50,7 +50,7 @@ def dashboard():
 
     products = query.order_by(Product.expiry_date.asc()).all()
 
-    # --- 2. CALCOLO DATI PER LE CARDS (Nuovo!) ---
+    # --- 2. CALCOLO DATI PER LE CARDS ---
 
     # Card 1: Totale Prodotti (Conta le righe)
     total_products = Product.query.count()
@@ -62,6 +62,24 @@ def dashboard():
     seven_days_from_now = date.today() + timedelta(days=7)
     expiring_soon = Product.query.filter(Product.expiry_date <= seven_days_from_now).count()
 
+    # --- 3. GAMIFICATION: Spreco settimanale ---
+    today = date.today()
+
+    # Troviamo l'inizio della settimana corrente (Lunedì)
+    start_of_week = today - timedelta(days=today.weekday())
+
+    # Calcoliamo lo spreco totale ($) da lunedì a oggi
+    weekly_waste_cost = db.session.query(func.sum(Log.quantity * Log.cost_per_unit))\
+        .filter(Log.action_type == 'waste')\
+        .filter(Log.timestamp >= start_of_week).scalar() or 0
+    
+    # Impostiamo un obiettivo (Budget di spreco massimo)
+    weekly_budget = 50.0
+
+    # Calcoliamo la percentuale per la barra di progresso (max 100%)
+    waste_percentage = (weekly_waste_cost / weekly_budget) * 100
+    if waste_percentage > 100: waste_percentage = 100
+
     return render_template(
         "dashboard.html", 
         products=products, 
@@ -70,7 +88,10 @@ def dashboard():
         # Passiamo i nuovi dati al template HTML
         total_products=total_products,
         total_value=total_value,
-        expiring_soon=expiring_soon
+        expiring_soon=expiring_soon,
+        weekly_waste_cost=weekly_waste_cost,
+        weekly_budget=weekly_budget,
+        waste_percentage=waste_percentage
     )
 
 @inventory_bp.route('/add', methods=['GET', 'POST'])
