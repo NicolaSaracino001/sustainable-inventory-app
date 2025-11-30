@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from .. import db, login_manager
 from ..models.user import User
-from ..forms import LoginForm, RegistrationForm
+from ..forms import LoginForm, RegistrationForm, UpdateProfileForm 
 
 # Creiamo il nuovo Blueprint per l'autenticazione
 auth_bp = Blueprint('auth_bp', __name__)
@@ -77,3 +77,24 @@ def logout_page():
     logout_user()
     flash('Logout effettuato con successo.', 'info')
     return redirect(url_for('auth_bp.login_page'))
+
+@auth_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile_page():
+    """Gestisce la pagina del profilo utente."""
+    form = UpdateProfileForm()
+
+    if form.validate_on_submit():
+        # 1. Se il modulo è stato inviato, aggiorniamo il database
+        current_user.waste_budget = form.waste_budget.data
+        db.session.commit()
+
+        flash('Profilo aggiornato con successo!', 'success')
+        return redirect(url_for('inventory_bp.dashboard'))
+
+    elif request.method == 'GET':
+        # 2. Se stiamo solo aprendo la pagina, pre-compiliamo il campo
+        # con il valore attuale salvato nel database
+        form.waste_budget.data = current_user.waste_budget
+
+    return render_template('profile.html', form=form)

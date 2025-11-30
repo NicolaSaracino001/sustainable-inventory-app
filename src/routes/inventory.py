@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 from datetime import datetime, date, timedelta
 # 1. IMPORTIAMO 'func' DIRETTAMENTE DA QUI
 from sqlalchemy import or_, func
@@ -74,7 +74,7 @@ def dashboard():
         .filter(Log.timestamp >= start_of_week).scalar() or 0
     
     # Impostiamo un obiettivo (Budget di spreco massimo)
-    weekly_budget = 50.0
+    weekly_budget = current_user.waste_budget if current_user.waste_budget else 50.0
 
     # Calcoliamo la percentuale per la barra di progresso (max 100%)
     waste_percentage = (weekly_waste_cost / weekly_budget) * 100

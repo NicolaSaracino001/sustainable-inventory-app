@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, FloatField 
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
 from .models.user import User # Per controllare se l'email esiste già
 
@@ -35,3 +35,8 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Ricordami')
     submit = SubmitField('Login')
+
+class UpdateProfileForm(FlaskForm):
+    """Modulo per aggiornare il profilo utente."""
+    waste_budget = FloatField('Budget Spreco Settimanale (€)', validators=[DataRequired()])
+    submit = SubmitField('Aggiorna Profilo')
