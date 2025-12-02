@@ -7,14 +7,19 @@
     <title>{% block title %}S.I.M.{% endblock %}</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#004d40">
+    
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
 
 </head>
 
 <body>
 
-    <!-- Blocco per i messaggi Flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="messages-container">
@@ -26,14 +31,14 @@
             </div>
         {% endif %}
     {% endwith %}
-
-    <!-- Un solo Header e un solo Nav -->
+    
     <header class="main-header">
         <div class="header-container">
-
+            
             <div class="logo">
-                <a href="{{ url_for('inventory_bp.dashboard') }}" style="text-decoration: none; color: white;">
-                    <span style="font-size: 1.8rem;">🌱 S.I.M.</span>
+                <a href="{{ url_for('inventory_bp.dashboard') }}" style="text-decoration: none; color: white; display: flex; align-items: center;">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="height: 40px; margin-right: 10px;">
+                    <span style="font-size: 1.5rem; font-weight: bold;">S.I.M.</span>
                 </a>
             </div>
 
@@ -42,9 +47,12 @@
                     <a href="{{ url_for('inventory_bp.dashboard') }}" class="nav-link">Dashboard</a>
                     <a href="{{ url_for('inventory_bp.add_product_page') }}" class="nav-link">Nuovo Prodotto</a>
                     <a href="{{ url_for('inventory_bp.report_page') }}" class="nav-link">Report</a>
-                    <a href="{{ url_for('auth_bp.profile_page') }}" class="nav-link"><i class="fas fa-user-cog"></i> Profilo 
-                    </a>
                     <a href="{{ url_for('inventory_bp.academy_page') }}" class="nav-link">Academy 🎓</a>
+                    
+                    <a href="{{ url_for('auth_bp.profile_page') }}" class="nav-link">
+                        <i class="fas fa-user-cog"></i> Profilo
+                    </a>
+                    
                     <a href="{{ url_for('auth_bp.logout_page') }}" class="nav-link btn-logout">Logout</a>
                 {% else %}
                     <a href="{{ url_for('auth_bp.login_page') }}" class="nav-link">Login</a>
@@ -55,13 +63,11 @@
         </div>
     </header>
 
-    <!-- Contenuto principale -->
     <main>
         {% block content %}
         {% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer>
         <p>&copy; 2025 Sustainable Inventory App</p>
     </footer>

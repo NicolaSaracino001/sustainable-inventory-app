@@ -1,0 +1,21 @@
+{
+  "name": "S.I.M. Inventory",
+  "short_name": "S.I.M.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#004d40",
+  "theme_color": "#004d40",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/static/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
