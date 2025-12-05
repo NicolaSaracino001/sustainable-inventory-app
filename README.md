@@ -1,6 +1,8 @@
-# 🌱 Sustainable Inventory Management (S.I.M.)
+# 🌱 S.I.M. - Sustainable Inventory Management
 
-**A smart, eco-friendly inventory management system designed for the HoReCa sector to reduce food waste and optimize costs.**
+**A smart, eco-friendly inventory management system (PWA) designed for the HoReCa sector to reduce food waste and optimize costs.**
+
+![SIM Logo](src/static/logo.png)
 
 ---
 
@@ -10,11 +12,15 @@ Food waste is a massive financial and environmental problem. **S.I.M.** empowers
 
 ---
 
-## 💡 Key Features
+## 💡 Key Features (Completed Phases 1-14)
+
+### 📱 User Experience (PWA)
+* **Progressive Web App:** Installable on any device (iOS, Android, Desktop) with a native app-like experience.
+* **Modern UI:** Clean, responsive design with "Inter" font, custom branding, and mobile-optimized layout.
 
 ### 🔐 Security & Access
 * **Secure Authentication:** Complete Login/Registration system.
-* **Role-Based Access:** Only authorized staff can view or modify sensitive data.
+* **User Profile:** Custom profile management with personalized waste budget settings.
 
 ### 📦 Smart Inventory (CRUD +)
 * **Barcode Memory:** "Scan-to-fill" feature that remembers products you've scanned before, auto-filling details to save time.
@@ -22,30 +28,27 @@ Food waste is a massive financial and environmental problem. **S.I.M.** empowers
 * **Search & Scan:** Instant search bar compatible with USB/Bluetooth barcode scanners.
 
 ### 📉 Sustainability & Intelligence
-* **Smart Tips 💡:** Clicking on expiring items provides category-specific advice on how to save them (e.g., "Meat expiring? Freeze or cook ragù").
-* **Smart Restock 📧:** Automatically detects low stock (< 5 units) and generates a pre-filled email to order from suppliers.
-* **Academy Section 🎓:** A dedicated learning hub with video tutorials on zero-waste cooking and storage techniques.
+* **Smart Tips 💡:** Context-aware advice on how to save expiring items based on their category.
+* **Smart Restock 📧:** Automatically detects low stock and generates pre-filled order emails for suppliers.
+* **Academy Section 🎓:** A dedicated video learning hub for zero-waste training.
 
 ### 📊 Reports & Gamification
-* **Financial Reports:** Visual charts (Pie & Bar) showing "Used vs. Wasted" costs in real-time.
-* **Excel Export:** Download the full inventory or logs as `.xlsx` files for accounting.
-* **Gamification 🏆:** Weekly Waste Budget tracker. Stay under budget to earn the **"Eco-Hero"** badge!
+* **Financial Reports:** Visual charts (Pie & Bar) showing "Used vs. Wasted" costs and weekly trends.
+* **Excel Export:** One-click export of the full inventory for accounting purposes.
+* **Gamification 🏆:** Weekly Waste Budget tracker with **"Eco-Hero"** badges to motivate the team.
 
 ---
 
-## 🛣️ Project Roadmap
+## 🛣️ Roadmap: Next Steps
 
-We are rapidly evolving. Here is our progress:
+We are moving towards Cloud Deployment and AI Integration.
 
-- [x] **Core MVP:** Database, Dashboard, Basic Alerts.
-- [x] **Security:** Flask-Login implementation.
-- [x] **Efficiency:** Barcode integration & Product Memory.
-- [x] **Business Logic:** Excel Export & Smart Restock emails.
-- [x] **Education:** Academy Video Section.
-- [x] **Engagement:** Gamification & Badges.
-- [ ] **Phase 13:** User Profile & Custom Settings (Set your own waste budget).
-- [ ] **Phase 14:** PWA (Progressive Web App) - Installable on mobile devices.
-- [ ] **Phase 15:** Cloud Deployment (Online access).
+- [x] **Phase 1-12:** Core MVP, Analytics, Gamification.
+- [x] **Phase 13:** User Profile & Custom Settings.
+- [x] **Phase 14:** PWA Conversion & UI Polish.
+- [ ] **Phase 15:** Cloud Deployment (Put the app online for real usage).
+- [ ] **Phase 16:** AI Integration (Recipe suggestions, visual recognition).
+- [ ] **Phase 17:** Advanced Mobile Native Features (Camera scan, Push notifications).
 
 ---
 
