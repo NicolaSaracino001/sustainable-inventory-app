@@ -7,6 +7,6 @@ app = create_app()
 
 if __name__ == '__main__':
     # Avviamo il server
-    # debug=True fa sì che il server si riavvii da solo
-    # ogni volta che salviamo una modifica al codice.
-    app.run(debug=True)
+    # debug=True fa sì che il server si riavvii da solo alle modifiche.
+    # port=5001 serve per evitare conflitti con la porta standard del Mac (AirPlay).
+    app.run(debug=True, port=5001)
