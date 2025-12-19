@@ -46,9 +46,11 @@ We are moving towards Cloud Deployment and AI Integration.
 - [x] **Phase 1-12:** Core MVP, Analytics, Gamification.
 - [x] **Phase 13:** User Profile & Custom Settings.
 - [x] **Phase 14:** PWA Conversion & UI Polish.
-- [ ] **Phase 15:** Cloud Deployment (Put the app online for real usage).
-- [ ] **Phase 16:** AI Integration (Recipe suggestions, visual recognition).
-- [ ] **Phase 17:** Advanced Mobile Native Features (Camera scan, Push notifications).
+- [ ] **Phase 15:** Security & Environment Variables
+- [ ] **Phase 16:** Styling & UI Polish
+- [ ] **Phase 17:** Cloud Deployment (Put the app online for real usage).
+- [ ] **Phase 18:** AI Integration (Recipe suggestions, visual recognition).
+- [ ] **Phase 19:** Advanced Mobile Native Features (Camera scan, Push notifications).
 
 ---
 
