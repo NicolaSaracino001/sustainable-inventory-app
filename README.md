@@ -15,7 +15,9 @@ Benvenuto in S.I.M., un'applicazione Flask per la gestione intelligente del maga
 - [x] Fase 9: Risoluzione ImportError e Setup degli Import Assoluti.
 - [x] Bug Fix: Aggiunto `user_loader` per la gestione sessioni Flask-Login.
 - [x] Fase 10: Creazione Dashboard operativa e Blueprint `main`.
-- [ ] Fase 11: Implementazione logica "Menù e Ingredienti" (Scarico automatico).
+- [x] Fase 11: Gestione Menù - Possibilità di aggiungere piatti al database.
+- [ ] Fase 12: Collegamento Ingredienti (Ricette) e Scarico Magazzino.
+
 
 
 
