@@ -1,12 +1,9 @@
 from flask import Flask
 from flask_login import LoginManager
 import os
-import sys
 from dotenv import load_dotenv
-from src.models.models import db, User # Importiamo db e User dai modelli
+from src.models.models import db, User 
 
-# Aggiunge il percorso principale
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 load_dotenv()
 
 def create_app():
@@ -39,7 +36,3 @@ def create_app():
         return "<h1>S.I.M. Acceso!</h1><a href='/login'>Vai al Login</a>"
 
     return app
-
-if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True)
