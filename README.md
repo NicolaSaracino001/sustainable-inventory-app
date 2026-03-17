@@ -17,7 +17,9 @@ Benvenuto in S.I.M., un'applicazione Flask per la gestione intelligente del maga
 - [x] Fase 10: Creazione Dashboard operativa e Blueprint `main`.
 - [x] Fase 11: Gestione Menù - Possibilità di aggiungere piatti al database.
 - [x] Fase 12: Gestione Magazzino (Carico merci e gestione soglie).
-- [ ] Fase 13: La Ricetta Interattiva (Collegare Piatto -> Ingredienti).
+- [x] Fase 13: La Ricetta Interattiva (Associazione Piatto -> Ingredienti).
+- [ ] Fase 14: Scarico Automatico (Simulazione Ordine/Scontrino).
+
 
 
 
