@@ -2,14 +2,11 @@
 
 Benvenuto in S.I.M., un'applicazione Flask per la gestione intelligente del magazzino alimentare.
 
-## 📌 Stato del Progetto
-- **Fase attuale:** 2 (Configurazione Ambiente)
-- **Obiettivo:** Preparare i file di installazione e le variabili d'ambiente.
-
 ## 📝 Fasi Completate
 - [x] Fase 1: Creazione cartelle e inizializzazione Git.
 - [x] Fase 2: Configurazione .env e requirements.txt.
 - [x] Fase 3: Creazione del cuore dell'app (src/app.py).
 - [x] Fase 4: Definizione Modelli Database.
-- [x] Fase 5: Installazione dipendenze e attivazione venv.
-- [ ] Fase 6: Creazione delle rotte di autenticazione (Login/Register).
+- [x] Fase 5: Installazione dipendenze e collegamento interprete.
+- [x] Fase 6: Creazione rotte di Autenticazione (Login/Register) in `src/routes/auth.py`.
+- [ ] Fase 7: Creazione dei primi Template HTML (Login/Register) in `src/templates`.

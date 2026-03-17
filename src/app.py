@@ -11,28 +11,16 @@ load_dotenv()
 db = SQLAlchemy()
 
 def create_app():
-    app = Flask(__name__)
-
-    # Configurazione di base presa dal file .env
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    # Colleghiamo il database all'app
+    # ... (codice esistente sopra)
     db.init_app(app)
 
-    # Configurazione Login (per l'area riservata del ristoratore)
-    login_manager = LoginManager()
-    login_manager.login_view = 'auth.login' # Nome della futura rotta di login
-    login_manager.init_app(app)
+    # Aggiungi queste righe qui sotto:
+    from .routes.auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint)
 
-    # Rotta di prova per vedere se tutto funziona
+    # Rotta di prova esistente
     @app.route('/')
     def index():
-        return "<h1>S.I.M. - Benvenuto nell'Inventory Management!</h1><p>Il motore Flask è acceso.</p>"
+        return "<h1>S.I.M. Acceso!</h1><a href='/login'>Vai al Login</a>"
 
     return app
-
-if __name__ == '__main__':
-    app = create_app()
-    app.run(debug=True)
