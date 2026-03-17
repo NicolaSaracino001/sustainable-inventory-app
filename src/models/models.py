@@ -1,7 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 
-# Definiamo il db qui per evitare import circolari
 db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
@@ -18,7 +17,6 @@ class Product(db.Model):
     unit = db.Column(db.String(20), nullable=False)
     min_threshold = db.Column(db.Float, default=5.0)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # Aggiungiamo il backref per le ricette
     recipes = db.relationship('RecipeItem', backref='product', lazy=True)
 
 class MenuItem(db.Model):
@@ -33,4 +31,3 @@ class RecipeItem(db.Model):
     menu_item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity_needed = db.Column(db.Float, nullable=False)
-    # Rimosso errore: il backref in Product creerà automaticamente l'attributo .product qui

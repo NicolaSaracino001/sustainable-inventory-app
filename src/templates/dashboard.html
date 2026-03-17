@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>S.I.M. - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: sans-serif; margin: 0; display: flex; }
         .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; padding: 20px; position: fixed; }
@@ -16,6 +17,7 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
         .ai-card { border-left: 5px solid #0984e3; background: #ebf5ff; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
     </style>
 </head>
 <body>
@@ -28,46 +30,60 @@
         </nav>
         <a href="{{ url_for('auth.logout') }}" class="btn-logout">Esci</a>
     </div>
+
     <div class="content">
-        <h1>Benvenuto nel tuo Ristorante, {{ name }}</h1>
+        <h1>Dashboard di {{ name }}</h1>
 
         {% if low_stock %}
         <div class="alert-box">
-            <h3>⚠️ Attenzione: Scorte in esaurimento!</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ingrediente</th>
-                        <th>Giacenza attuale</th>
-                        <th>Soglia Minima</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in low_stock %}
-                    <tr>
-                        <td>{{ p.name }}</td>
-                        <td class="status-red">{{ p.quantity }} {{ p.unit }}</td>
-                        <td>{{ p.min_threshold }} {{ p.unit }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="card" style="border-left: 5px solid #55efc4;">
-            <p>✅ Tutte le scorte sono sopra la soglia di sicurezza.</p>
+            <h3>⚠️ Scorte in esaurimento</h3>
+            <p>Controlla il magazzino: alcuni prodotti sono sotto la soglia.</p>
         </div>
         {% endif %}
 
         <div class="card ai-card">
             <h3>🤖 Assistente Predittivo (Meteo)</h3>
-            <p style="font-size: 1.1rem; color: #2d3436;">{{ weather_suggestion }}</p>
+            <p>{{ weather_suggestion }}</p>
         </div>
 
         <div class="card">
-            <h3>Consumi Recenti</h3>
-            <p>I dati di scarico automatico vengono registrati. Presto qui vedrai i grafici dei tuoi consumi.</p>
+            <h3>Analisi Livelli Magazzino</h3>
+            <div class="chart-container">
+                <canvas id="inventoryChart"></canvas>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('inventoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {{ chart_labels|tojson }},
+                    datasets: [
+                        {
+                            label: 'Giacenza Attuale',
+                            data: {{ chart_values|tojson }},
+                            backgroundColor: '#3498db'
+                        },
+                        {
+                            label: 'Soglia Minima',
+                            data: {{ chart_thresholds|tojson }},
+                            backgroundColor: '#e74c3c',
+                            type: 'line',
+                            borderColor: '#e74c3c',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
