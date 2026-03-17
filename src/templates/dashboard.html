@@ -5,12 +5,16 @@
     <title>S.I.M. - Dashboard</title>
     <style>
         body { font-family: sans-serif; margin: 0; display: flex; }
-        .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; padding: 20px; }
-        .content { flex: 1; padding: 40px; background: #f4f7f6; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 20px; }
+        .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; padding: 20px; position: fixed; }
+        .content { flex: 1; padding: 40px; background: #f4f7f6; margin-left: 290px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         nav a { color: white; display: block; padding: 10px 0; text-decoration: none; border-bottom: 1px solid #34495e; }
         nav a:hover { color: #27ae60; }
-        .btn-logout { color: #e74c3c; margin-top: 20px; display: block; text-decoration: none; }
+        .alert-box { background: #ffeaa7; border-left: 5px solid #fab1a0; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .status-red { color: #d63031; font-weight: bold; }
+        .btn-logout { color: #e17055; margin-top: 20px; display: block; text-decoration: none; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -18,17 +22,45 @@
         <h2>S.I.M. 🍎</h2>
         <nav>
             <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
-            <a href="{{ url_for('main.inventory') }}">Magazzino/Deposito</a>
+            <a href="{{ url_for('main.inventory') }}">Magazzino</a>
             <a href="{{ url_for('main.menu') }}">Gestione Menù</a>
-            <a href="#">Calendario Predittivo</a>
         </nav>
         <a href="{{ url_for('auth.logout') }}" class="btn-logout">Esci</a>
     </div>
     <div class="content">
-        <h1>Benvenuto, {{ name }}!</h1>
+        <h1>Benvenuto nel tuo Ristorante, {{ name }}</h1>
+
+        {% if low_stock %}
+        <div class="alert-box">
+            <h3>⚠️ Attenzione: Scorte in esaurimento!</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ingrediente</th>
+                        <th>Giacenza attuale</th>
+                        <th>Soglia Minima</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in low_stock %}
+                    <tr>
+                        <td>{{ p.name }}</td>
+                        <td class="status-red">{{ p.quantity }} {{ p.unit }}</td>
+                        <td>{{ p.min_threshold }} {{ p.unit }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card" style="border-left: 5px solid #55efc4;">
+            <p>✅ Tutte le scorte sono sopra la soglia di sicurezza.</p>
+        </div>
+        {% endif %}
+
         <div class="card">
-            <h3>Stato Rapido</h3>
-            <p>Qui vedrai gli ingredienti in esaurimento e le previsioni meteo per i prossimi giorni.</p>
+            <h3>Previsioni e Suggerimenti</h3>
+            <p>Il sistema sta analizzando i tuoi dati. Presto qui vedrai i suggerimenti basati sul meteo e sugli ordini passati.</p>
         </div>
     </div>
 </body>

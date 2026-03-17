@@ -1,14 +1,13 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from src.models.models import MenuItem, RecipeItem, Product
-from src.app import db
+from src.models.models import MenuItem, RecipeItem, Product, db
 
 main = Blueprint('main', __name__)
 
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    # Recuperiamo i prodotti sottosoglia per avvisare il ristoratore
+    # Recuperiamo i prodotti dell'utente che sono sotto o uguali alla soglia minima
     low_stock_products = Product.query.filter(
         Product.user_id == current_user.id,
         Product.quantity <= Product.min_threshold
@@ -67,23 +66,19 @@ def add_recipe_item(item_id):
     db.session.commit()
     return redirect(url_for('main.recipe', item_id=item_id))
 
-# LOGICA DI SCARICO AUTOMATICO
 @main.route('/sell_item/<int:item_id>', methods=['POST'])
 @login_required
 def sell_item(item_id):
-    # 1. Trova il piatto e la sua ricetta
     recipe_items = RecipeItem.query.filter_by(menu_item_id=item_id).all()
-    
     if not recipe_items:
-        flash("Errore: Questo piatto non ha ingredienti associati!")
+        flash("Errore: Definisci prima la ricetta per questo piatto!")
         return redirect(url_for('main.menu'))
 
-    # 2. Sottrai le quantità dal magazzino
     for r_item in recipe_items:
         product = Product.query.get(r_item.product_id)
         if product:
             product.quantity -= r_item.quantity_needed
     
     db.session.commit()
-    flash(f"Ordine registrato! Inventario aggiornato automaticamente.")
+    flash("Scontrino registrato: Magazzino aggiornato!")
     return redirect(url_for('main.menu'))

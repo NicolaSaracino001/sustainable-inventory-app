@@ -23,6 +23,8 @@ Benvenuto in S.I.M., un'applicazione Flask per la gestione intelligente del maga
 - [x] Bug Fix: Creato `run.py` per avvio professionale.
 - [x] Bug Fix: Risolto `UndefinedError` aggiungendo la relazione tra `Product` e `RecipeItem`.
 - [ ] Fase 15: Sistema di Alert e Visualizzazione Colori.
+- [ ] Fase 16: Integrazione API Meteo per suggerimenti approvvigionamento.
+
 
 
 
