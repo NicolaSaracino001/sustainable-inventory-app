@@ -5,8 +5,8 @@
     <title>S.I.M. - Gestione Menù</title>
     <style>
         body { font-family: sans-serif; margin: 0; display: flex; }
-        .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; padding: 20px; }
-        .content { flex: 1; padding: 40px; background: #f4f7f6; }
+        .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; padding: 20px; position: fixed; }
+        .content { flex: 1; padding: 40px; background: #f4f7f6; margin-left: 290px; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; color: white; font-size: 14px; }
         .btn-add { background: #27ae60; }
@@ -14,25 +14,38 @@
         .btn-sell { background: #e67e22; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-        .flash { padding: 10px; background: #d4edda; color: #155724; border-radius: 4px; margin-bottom: 20px; }
+        nav a { color: white; display: block; padding: 10px 0; text-decoration: none; border-bottom: 1px solid #34495e; }
+        nav a:hover { color: #27ae60; }
+        .btn-logout { color: #e17055; margin-top: 20px; display: block; text-decoration: none; font-weight: bold; }
+
+        /* NUOVE CLASSI PER I MESSAGGI (Risolvono gli errori rossi in VS Code) */
+        .flash-msg { padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .flash-error { background-color: #f8d7da; color: #721c24; }
+        .flash-success { background-color: #d4edda; color: #155724; }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <h2>S.I.M. 🍎</h2>
         <nav>
-            <a href="{{ url_for('main.dashboard') }}" style="color:white; display:block; padding:10px 0; text-decoration:none;">Dashboard</a>
-            <a href="{{ url_for('main.inventory') }}" style="color:white; display:block; padding:10px 0; text-decoration:none;">Magazzino</a>
-            <a href="{{ url_for('main.menu') }}" style="color:white; display:block; padding:10px 0; text-decoration:none;">Gestione Menù</a>
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('main.inventory') }}">Magazzino</a>
+            <a href="{{ url_for('main.menu') }}">Gestione Menù</a>
         </nav>
+        <a href="{{ url_for('auth.logout') }}" class="btn-logout">Esci</a>
     </div>
+    
     <div class="content">
         <h1>Gestione Menù</h1>
         
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
-              <div class="flash">{{ message }}</div>
+              {% if 'Errore' in message or 'Impossibile' in message or '❌' in message %}
+                <div class="flash-msg flash-error">{{ message }}</div>
+              {% else %}
+                <div class="flash-msg flash-success">{{ message }}</div>
+              {% endif %}
             {% endfor %}
           {% endif %}
         {% endwith %}
