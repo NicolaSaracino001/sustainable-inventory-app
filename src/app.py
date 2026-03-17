@@ -7,28 +7,34 @@ from dotenv import load_dotenv
 # Carica le configurazioni dal file .env
 load_dotenv()
 
-# Inizializziamo l'oggetto Database (SQLAlchemy)
+# Inizializziamo l'oggetto Database
 db = SQLAlchemy()
 
 def create_app():
-    # 1. CREIAMO PRIMA L'OGGETTO APP (Fondamentale!)
     app = Flask(__name__)
 
-    # 2. CONFIGURAZIONE (presa dal file .env)
+    # CONFIGURAZIONE
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # 3. COLLEGIAMO IL DATABASE ALL'APP
+    # COLLEGIAMO IL DATABASE ALL'APP
     db.init_app(app)
 
-    # 4. CONFIGURAZIONE LOGIN
+    # CONFIGURAZIONE LOGIN
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
-    # Registrazione dei Blueprints (Rotte)
-    from .routes.auth import auth as auth_blueprint
+    # QUESTA È LA PARTE MANCANTE: Il caricatore utente
+    from src.models.models import User
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    # REGISTRAZIONE DEI BLUEPRINTS
+    from src.routes.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
     # Rotta di prova

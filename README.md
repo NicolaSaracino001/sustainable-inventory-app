@@ -12,5 +12,8 @@ Benvenuto in S.I.M., un'applicazione Flask per la gestione intelligente del maga
 - [x] Fase 7: Template HTML per Login e Registrazione.
 - [x] Fase 8: Inizializzazione Database SQLite.
 - [x] Bug Fix: Risolto NameError in `src/app.py` (ordine inizializzazione app).
-- [ ] Fase 9: Primo avvio del server e registrazione utente.
+- [x] Fase 9: Risoluzione ImportError e Setup degli Import Assoluti.
+- [x] Bug Fix: Aggiunto `user_loader` per la gestione sessioni Flask-Login.
+- [ ] Fase 10: Creazione della Dashboard.
+
 
