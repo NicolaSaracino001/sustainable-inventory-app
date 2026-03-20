@@ -38,7 +38,6 @@
         .ai-card h3 { color: var(--ai-color); }
         .ai-card p { font-size: 16px; color: #4c1d95; font-weight: 500; margin: 0; line-height: 1.5; }
 
-        /* FASE 25: STILI ARCADE BARRA BUDGET */
         .arcade-card { border-left: 5px solid #f59e0b; }
         .arcade-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .arcade-header h3 { margin: 0; color: #d97706; }
@@ -48,7 +47,6 @@
         .progress-container { width: 100%; background-color: #e2e8f0; border-radius: 20px; height: 24px; overflow: hidden; margin-bottom: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
         .progress-bar { height: 100%; border-radius: 20px; transition: width 0.5s ease-in-out, background-color 0.5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; color: white; font-size: 12px; font-weight: bold; }
         
-        /* Colori dinamici in base al consumo */
         .bg-green { background-color: #10b981; }
         .bg-yellow { background-color: #f59e0b; }
         .bg-red { background-color: #ef4444; }
@@ -78,6 +76,7 @@
             <a href="{{ url_for('main.dashboard') }}" class="active">Dashboard</a>
             <a href="{{ url_for('main.inventory') }}">Magazzino</a>
             <a href="{{ url_for('main.menu') }}">Gestione Menù</a>
+            <a href="{{ url_for('main.analytics') }}">Analytics</a>
             <a href="{{ url_for('main.profile') }}">Profilo</a>
             <a href="{{ url_for('auth.logout') }}" class="btn-logout">Esci</a>
         </div>
@@ -158,26 +157,29 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('inventoryChart').getContext('2d');
-            const gradientBlue = ctx.createLinearGradient(0, 0, 0, 400);
-            gradientBlue.addColorStop(0, 'rgba(16, 185, 129, 0.8)');
-            gradientBlue.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
+            const canvas = document.getElementById('inventoryChart');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const gradientBlue = ctx.createLinearGradient(0, 0, 0, 400);
+                gradientBlue.addColorStop(0, 'rgba(16, 185, 129, 0.8)');
+                gradientBlue.addColorStop(1, 'rgba(16, 185, 129, 0.1)');
 
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: {{ chart_labels|tojson }},
-                    datasets: [
-                        { label: 'Giacenza Attuale', data: {{ chart_values|tojson }}, backgroundColor: gradientBlue, borderRadius: 8, borderWidth: 0 },
-                        { label: 'Soglia Minima', data: {{ chart_thresholds|tojson }}, type: 'line', borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5], pointBackgroundColor: '#ef4444', fill: false }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 13 } } } },
-                    scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
-                }
-            });
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: {{ chart_labels|tojson|safe }},
+                        datasets: [
+                            { label: 'Giacenza Attuale', data: {{ chart_values|tojson|safe }}, backgroundColor: gradientBlue, borderRadius: 8, borderWidth: 0 },
+                            { label: 'Soglia Minima', data: {{ chart_thresholds|tojson|safe }}, type: 'line', borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5], pointBackgroundColor: '#ef4444', fill: false }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 13 } } } },
+                        scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+                    }
+                });
+            }
         });
     </script>
 </body>

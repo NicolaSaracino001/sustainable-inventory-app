@@ -35,7 +35,6 @@
         .btn-excel { display: block; width: 100%; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 18px; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s; text-decoration: none; margin-top: 30px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2); }
         .btn-excel:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3); }
 
-        /* FASE 25: FORM BUDGET */
         .budget-form { display: flex; gap: 10px; margin-top: 10px; }
         .budget-form input { flex: 1; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 16px; outline: none; }
         .budget-form input:focus { border-color: #f59e0b; }
@@ -55,6 +54,7 @@
             <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
             <a href="{{ url_for('main.inventory') }}">Magazzino</a>
             <a href="{{ url_for('main.menu') }}">Gestione Menù</a>
+            <a href="{{ url_for('main.analytics') }}">Analytics</a>
             <a href="{{ url_for('main.profile') }}" class="active">Profilo</a>
             <a href="{{ url_for('auth.logout') }}" class="btn-logout">Esci</a>
         </div>

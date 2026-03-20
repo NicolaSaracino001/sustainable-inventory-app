@@ -19,10 +19,9 @@ def dashboard():
     
     total_inventory_value = sum([p.quantity * p.unit_cost for p in all_products])
     
-    # ---> FASE 25: CALCOLI ARCADE / BUDGET <---
     budget = current_user.monthly_budget
     if budget > 0:
-        budget_percent = min((total_inventory_value / budget) * 100, 100) # Max 100% visivo
+        budget_percent = min((total_inventory_value / budget) * 100, 100)
     else:
         budget_percent = 0
 
@@ -32,7 +31,7 @@ def dashboard():
     elif total_logs < 10:
         insight = f"Apprendimento in corso ({total_logs} dati registrati). Servono più vendite per le previsioni."
     else:
-        insight = f"Modello Attivo ({total_logs} data points). I tuoi trend di consumo si stanno stabilizzando."
+        insight = f"Modello Attivo ({total_logs} data points). I trend di consumo si stanno stabilizzando."
 
     return render_template('dashboard.html', 
                            name=current_user.restaurant_name, 
@@ -67,7 +66,7 @@ def add_inventory_item():
     )
     db.session.add(new_product)
     db.session.commit()
-    flash("Prodotto aggiunto al magazzino con costo di acquisto registrato.")
+    flash("Prodotto aggiunto al magazzino con costo registrato.")
     return redirect(url_for('main.inventory'))
 
 @main.route('/menu')
@@ -135,7 +134,6 @@ def sell_item(item_id):
 def profile():
     return render_template('profile.html', user=current_user)
 
-# ---> FASE 25: ROTTA PER AGGIORNARE IL BUDGET <---
 @main.route('/update_budget', methods=['POST'])
 @login_required
 def update_budget():
@@ -157,10 +155,9 @@ def export_excel():
     data = {
         "Prodotto": [p.name for p in products],
         "Giacenza Attuale": [p.quantity for p in products],
-        "Unità di Misura": [p.unit for p in products],
-        "Soglia di Allarme": [p.min_threshold for p in products],
+        "Unità": [p.unit for p in products],
         "Costo Unitario (€)": [p.unit_cost for p in products],
-        "Valore Totale in Magazzino (€)": [round(p.quantity * p.unit_cost, 2) for p in products]
+        "Valore Totale (€)": [round(p.quantity * p.unit_cost, 2) for p in products]
     }
     
     df = pd.DataFrame(data)
@@ -168,6 +165,35 @@ def export_excel():
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Report_FoodLoop')
     output.seek(0)
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    filename = f"Report_Magazzino_{date_str}.xlsx"
+    filename = f"Report_Magazzino_{datetime.now().strftime('%Y-%m-%d')}.xlsx"
     return send_file(output, download_name=filename, as_attachment=True)
+
+# ---> FASE 26: ROTTA ANALYTICS (FOODLOOP INTELLIGENCE) <---
+@main.route('/analytics')
+@login_required
+def analytics():
+    logs = ConsumptionLog.query.filter_by(user_id=current_user.id).all()
+    
+    total_cost_consumed = 0
+    product_stats = {}
+    
+    for log in logs:
+        # Calcola il costo totale consumato
+        cost = log.quantity_used * log.product.unit_cost
+        total_cost_consumed += cost
+        
+        # Raggruppa per prodotto per il grafico
+        if log.product.name in product_stats:
+            product_stats[log.product.name] += log.quantity_used
+        else:
+            product_stats[log.product.name] = log.quantity_used
+
+    # Prepara i dati per il grafico a torta/barre
+    analytics_labels = list(product_stats.keys())
+    analytics_values = list(product_stats.values())
+
+    return render_template('analytics.html', 
+                           total_cost=round(total_cost_consumed, 2),
+                           total_orders=len(logs), # Approssimazione
+                           labels=analytics_labels,
+                           values=analytics_values)
