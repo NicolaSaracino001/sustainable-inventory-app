@@ -8,10 +8,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; margin: 0; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); display: flex; justify-content: center; align-items: center; height: 100vh; }
         .auth-card { background: white; padding: 50px 40px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); width: 100%; max-width: 420px; text-align: center; }
-        
-        /* LOGO GIGANTE E INTEGRATO */
         .logo-img { height: 140px; width: auto; max-width: 100%; margin-bottom: 20px; mix-blend-mode: multiply; display: block; margin-left: auto; margin-right: auto; }
-        
         h2 { color: #1e293b; margin-top: 0; margin-bottom: 30px; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;}
         .input-group { text-align: left; margin-bottom: 20px; }
         .input-group label { display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
@@ -28,7 +25,7 @@
 <body>
     <div class="auth-card">
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo FoodLoop" class="logo-img" onerror="this.style.display='none';">
-        <h2>Configura il Sistema</h2>
+        <h2>Configura il Ristorante</h2>
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
@@ -38,18 +35,22 @@
         {% endwith %}
         <form method="POST" action="{{ url_for('auth.register') }}">
             <div class="input-group">
+                <label>Il tuo Nome e Cognome</label>
+                <input type="text" name="full_name" placeholder="Es. Mario Rossi" required>
+            </div>
+            <div class="input-group">
                 <label>Nome Ristorante</label>
                 <input type="text" name="restaurant_name" required>
             </div>
             <div class="input-group">
-                <label>Email Operatore</label>
+                <label>Email Proprietario</label>
                 <input type="email" name="email" required>
             </div>
             <div class="input-group">
-                <label>Password</label>
+                <label>Password Master</label>
                 <input type="password" name="password" required>
             </div>
-            <button type="submit" class="btn">Crea Account</button>
+            <button type="submit" class="btn">Crea Account Owner</button>
         </form>
         <div class="register-box">
             Hai già configurato? <a href="{{ url_for('auth.login') }}" class="link">Vai al Login</a>

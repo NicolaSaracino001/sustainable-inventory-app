@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required
-from src.models.models import db, User # Importiamo db dai modelli
+from src.models.models import User, db
 
 auth = Blueprint('auth', __name__)
 
@@ -12,38 +11,43 @@ def login():
         password = request.form.get('password')
         
         user = User.query.filter_by(email=email).first()
-        
-        if user and check_password_hash(user.password, password):
+        if user and user.check_password(password):
             login_user(user)
+            # Reindirizza sempre alla dashboard dopo il login
             return redirect(url_for('main.dashboard'))
         else:
-            flash('Email o password errate.')
+            flash("Credenziali non valide. Riprova.")
             
     return render_template('login.html')
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        email = request.form.get('email')
+        full_name = request.form.get('full_name') # Nuovo campo Nome!
         restaurant_name = request.form.get('restaurant_name')
+        email = request.form.get('email')
         password = request.form.get('password')
-
-        user = User.query.filter_by(email=email).first()
-        if user:
-            flash('Email già registrata.')
+        
+        user_exists = User.query.filter_by(email=email).first()
+        if user_exists:
+            flash("Questa email è già registrata.")
             return redirect(url_for('auth.register'))
-
+            
+        # Creiamo il Proprietario Principale
         new_user = User(
             email=email, 
-            restaurant_name=restaurant_name,
-            password=generate_password_hash(password, method='pbkdf2:sha256')
+            restaurant_name=restaurant_name, 
+            full_name=full_name, 
+            role='owner'
         )
+        new_user.set_password(password)
         
         db.session.add(new_user)
         db.session.commit()
         
-        return redirect(url_for('auth.login'))
-
+        login_user(new_user)
+        return redirect(url_for('main.dashboard'))
+        
     return render_template('register.html')
 
 @auth.route('/logout')

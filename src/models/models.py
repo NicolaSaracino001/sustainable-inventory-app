@@ -9,14 +9,31 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    restaurant_name = db.Column(db.String(150), nullable=False)
     
-    # ---> FASE 25: BUDGET MENSILE <---
+    # ---> FASE 27: NUOVI CAMPI GERARCHIA E PROFILO <---
+    full_name = db.Column(db.String(150), nullable=False, default="Utente")
+    restaurant_name = db.Column(db.String(150), nullable=True) # Sarà vuoto per i dipendenti
+    role = db.Column(db.String(20), nullable=False, default='owner') # Ruoli: 'owner' o 'staff'
+    parent_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) # A chi risponde questo dipendente?
+    
     monthly_budget = db.Column(db.Float, nullable=False, default=1000.0)
     
-    products = db.relationship('Product', backref='owner', lazy=True)
-    menu_items = db.relationship('MenuItem', backref='owner', lazy=True)
-    consumptions = db.relationship('ConsumptionLog', backref='owner', lazy=True)
+    products = db.relationship('Product', backref='owner', lazy=True, foreign_keys="Product.user_id")
+    menu_items = db.relationship('MenuItem', backref='owner', lazy=True, foreign_keys="MenuItem.user_id")
+    consumptions = db.relationship('ConsumptionLog', backref='owner', lazy=True, foreign_keys="ConsumptionLog.user_id")
+    
+    # Magia: collega i dipendenti al capo
+    staff_members = db.relationship('User', backref=db.backref('employer', remote_side=[id]))
+
+    # Proprietà intelligente: trova sempre il magazzino giusto
+    @property
+    def get_restaurant_id(self):
+        # Se sono staff, restituisco l'ID del mio capo. Altrimenti il mio.
+        return self.parent_id if self.role == 'staff' else self.id
+        
+    @property
+    def get_restaurant_name(self):
+        return self.employer.restaurant_name if self.role == 'staff' else self.restaurant_name
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
