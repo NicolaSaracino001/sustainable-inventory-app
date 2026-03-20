@@ -13,13 +13,27 @@
         .navbar { position: fixed; top: 0; left: 0; right: 0; height: 80px; background: #ffffff; box-shadow: 0 2px 15px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; padding: 0 50px; z-index: 1000; }
         .logo-container { display: flex; align-items: center; height: 100%; }
         .logo-img { height: 50px; width: auto; mix-blend-mode: multiply; }
-        .fallback-text { font-size: 24px; font-weight: 800; color: var(--primary); margin: 0; display: none; }
         
-        .nav-links { display: flex; gap: 15px; align-items: center; }
-        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; padding: 10px 18px; border-radius: 8px; transition: all 0.2s; font-size: 15px; }
-        .nav-links a:hover, .nav-links a.active { background: #f1f5f9; color: var(--primary); }
-        .btn-logout { color: #ef4444 !important; border: 2px solid #fee2e2; margin-left: 20px; }
-        .btn-logout:hover { background: #ef4444 !important; color: white !important; border-color: #ef4444; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-item { color: var(--text-muted); text-decoration: none; font-weight: 600; padding: 10px 18px; border-radius: 8px; transition: all 0.2s; font-size: 15px; }
+        .nav-item:hover, .nav-item.active { background: #f1f5f9; color: var(--primary); }
+
+        .user-menu { position: relative; display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 6px 10px; border-radius: 12px; transition: background 0.2s; border: 1px solid transparent;}
+        .user-menu:hover { background: #f8fafc; border-color: #e2e8f0; }
+        .user-details { display: flex; flex-direction: column; text-align: right; }
+        .res-name { font-weight: 700; font-size: 14px; color: var(--text-main); line-height: 1.2;}
+        .user-name { font-size: 12px; color: var(--text-muted); }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);}
+
+        /* FIX: IL PONTE INVISIBILE PER IL DROPDOWN */
+        .user-menu::after { content: ''; position: absolute; top: 100%; left: 0; width: 100%; height: 15px; background: transparent; }
+        .dropdown-content { display: none; position: absolute; top: calc(100% + 10px); right: 0; background-color: white; min-width: 220px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; z-index: 1001; border: 1px solid #e2e8f0; }
+        .user-menu:hover .dropdown-content { display: block; }
+        
+        .dropdown-content a { color: var(--text-main); padding: 14px 20px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; transition: 0.2s; }
+        .dropdown-content a:hover { background-color: #f8fafc; color: var(--primary); }
+        .logout-link { color: #ef4444 !important; border-top: 1px solid #f1f5f9; }
+        .logout-link:hover { background-color: #fef2f2 !important; color: #dc2626 !important; }
 
         .content { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         .header { margin-bottom: 30px; }
@@ -64,30 +78,55 @@
         .status-red { color: var(--danger); font-weight: 700; }
 
         .chart-container { position: relative; height: 380px; width: 100%; }
+        .flash-msg { padding: 16px; margin-bottom: 25px; border-radius: 12px; font-weight: 500; display: flex; align-items: center; gap: 10px; background-color: #fef2f2; color: #ef4444; border-left: 4px solid #ef4444;}
     </style>
 </head>
 <body>
     <div class="navbar">
         <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img" onerror="this.style.display='none'; document.getElementById('testo-logo').style.display='block';">
-            <h2 id="testo-logo" class="fallback-text">FoodLoop</h2>
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img" onerror="this.style.display='none';">
         </div>
+        
         <div class="nav-links">
-            <a href="{{ url_for('main.dashboard') }}" class="active">Dashboard</a>
-            <a href="{{ url_for('main.inventory') }}">Magazzino</a>
-            <a href="{{ url_for('main.menu') }}">Gestione Menù</a>
-            <a href="{{ url_for('main.analytics') }}">Analytics</a>
-            <a href="{{ url_for('main.profile') }}">Profilo</a>
-            <a href="{{ url_for('auth.logout') }}" class="btn-logout">Esci</a>
+            <a href="{{ url_for('main.dashboard') }}" class="nav-item active">Dashboard</a>
+            <a href="{{ url_for('main.inventory') }}" class="nav-item">Magazzino</a>
+            <a href="{{ url_for('main.menu') }}" class="nav-item">Gestione Menù</a>
+            
+            <div class="user-menu">
+                <div class="user-details">
+                    <span class="res-name">{{ current_user.get_restaurant_name }}</span>
+                    <span class="user-name">{{ current_user.full_name }} ({% if current_user.role == 'owner' %}Admin{% else %}Staff{% endif %})</span>
+                </div>
+                <div class="avatar">{{ current_user.full_name[0] | upper }}</div>
+                
+                <div class="dropdown-content">
+                    {% if current_user.role == 'owner' %}
+                        <a href="{{ url_for('main.analytics') }}">📈 FoodLoop Intelligence</a>
+                        <a href="{{ url_for('main.profile') }}">👤 Profilo & Esportazioni</a>
+                        <a href="{{ url_for('main.settings') }}">⚙️ Impostazioni Staff</a>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('auth.logout') }}" class="logout-link">🚪 Esci dall'account</a>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="content">
         <div class="header">
-            <h1>Bentornato, {{ name }}!</h1>
+            <h1>Bentornato, {{ current_user.full_name }}!</h1>
             <p>La tua panoramica operativa e finanziaria aggiornata in tempo reale.</p>
         </div>
 
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="flash-msg"><span>⚠️</span> {{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% if current_user.role == 'owner' %}
         <div class="top-cards-grid">
             <div class="card value-card">
                 <h3>💰 Valore Capitale in Magazzino</h3>
@@ -95,7 +134,7 @@
             </div>
             
             <div class="card ai-card">
-                <h3>✨ Analisi Predittiva (FoodLoop Engine)</h3>
+                <h3>✨ Analisi Predittiva</h3>
                 <p>{{ weather_suggestion }}</p>
             </div>
         </div>
@@ -122,6 +161,7 @@
                 {% endif %}
             </div>
         </div>
+        {% endif %}
 
         {% if low_stock %}
         <div class="alert-box">

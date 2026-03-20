@@ -1,16 +1,30 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
 from flask_login import login_required, current_user
-from src.models.models import MenuItem, RecipeItem, Product, ConsumptionLog, db
+from src.models.models import MenuItem, RecipeItem, Product, ConsumptionLog, User, db
 from datetime import datetime
+from functools import wraps
 import pandas as pd
 import io
 
 main = Blueprint('main', __name__)
 
+# ---> FASE 27: LUCCHETTO DI SICUREZZA (Solo Proprietari) <---
+def owner_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user.role != 'owner':
+            flash("❌ Accesso negato: Area riservata al Proprietario del locale.")
+            return redirect(url_for('main.dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    all_products = Product.query.filter_by(user_id=current_user.id).all()
+    # Usa get_restaurant_id per caricare il magazzino del capo se sei dipendente
+    rest_id = current_user.get_restaurant_id
+    
+    all_products = Product.query.filter_by(user_id=rest_id).all()
     low_stock_products = [p for p in all_products if p.quantity <= p.min_threshold]
     
     chart_labels = [p.name for p in all_products]
@@ -19,13 +33,19 @@ def dashboard():
     
     total_inventory_value = sum([p.quantity * p.unit_cost for p in all_products])
     
-    budget = current_user.monthly_budget
+    # Prende il budget corretto
+    if current_user.role == 'owner':
+        budget = current_user.monthly_budget
+    else:
+        boss = User.query.get(current_user.parent_id)
+        budget = boss.monthly_budget
+
     if budget > 0:
         budget_percent = min((total_inventory_value / budget) * 100, 100)
     else:
         budget_percent = 0
 
-    total_logs = ConsumptionLog.query.filter_by(user_id=current_user.id).count()
+    total_logs = ConsumptionLog.query.filter_by(user_id=rest_id).count()
     if total_logs == 0:
         insight = "Fase di Apprendimento: il sistema neurale sta analizzando i dati."
     elif total_logs < 10:
@@ -34,7 +54,7 @@ def dashboard():
         insight = f"Modello Attivo ({total_logs} data points). I trend di consumo si stanno stabilizzando."
 
     return render_template('dashboard.html', 
-                           name=current_user.restaurant_name, 
+                           name=current_user.get_restaurant_name, 
                            low_stock=low_stock_products,
                            weather_suggestion=insight,
                            chart_labels=chart_labels,
@@ -47,7 +67,7 @@ def dashboard():
 @main.route('/inventory')
 @login_required
 def inventory():
-    products = Product.query.filter_by(user_id=current_user.id).all()
+    products = Product.query.filter_by(user_id=current_user.get_restaurant_id).all()
     return render_template('inventory.html', products=products)
 
 @main.route('/add_inventory_item', methods=['POST'])
@@ -62,17 +82,17 @@ def add_inventory_item():
     
     new_product = Product(
         name=name, quantity=quantity, unit=unit, 
-        min_threshold=threshold, unit_cost=unit_cost, user_id=current_user.id
+        min_threshold=threshold, unit_cost=unit_cost, user_id=current_user.get_restaurant_id
     )
     db.session.add(new_product)
     db.session.commit()
-    flash("Prodotto aggiunto al magazzino con costo registrato.")
+    flash("Prodotto aggiunto al magazzino.")
     return redirect(url_for('main.inventory'))
 
 @main.route('/menu')
 @login_required
 def menu():
-    menu_items = MenuItem.query.filter_by(user_id=current_user.id).all()
+    menu_items = MenuItem.query.filter_by(user_id=current_user.get_restaurant_id).all()
     return render_template('menu.html', menu_items=menu_items)
 
 @main.route('/add_menu_item', methods=['POST'])
@@ -80,7 +100,7 @@ def menu():
 def add_menu_item():
     name = request.form.get('name')
     price = float(request.form.get('price'))
-    new_item = MenuItem(name=name, price=price, user_id=current_user.id)
+    new_item = MenuItem(name=name, price=price, user_id=current_user.get_restaurant_id)
     db.session.add(new_item)
     db.session.commit()
     flash("Nuovo piatto creato con successo.")
@@ -90,7 +110,7 @@ def add_menu_item():
 @login_required
 def recipe(item_id):
     item = MenuItem.query.get_or_404(item_id)
-    products = Product.query.filter_by(user_id=current_user.id).all()
+    products = Product.query.filter_by(user_id=current_user.get_restaurant_id).all()
     recipe_items = RecipeItem.query.filter_by(menu_item_id=item_id).all()
     return render_template('recipe.html', item=item, products=products, recipe_items=recipe_items)
 
@@ -122,20 +142,26 @@ def sell_item(item_id):
     for r_item in recipe_items:
         product = Product.query.get(r_item.product_id)
         product.quantity -= r_item.quantity_needed
-        log_entry = ConsumptionLog(user_id=current_user.id, product_id=product.id, quantity_used=r_item.quantity_needed)
+        log_entry = ConsumptionLog(user_id=current_user.get_restaurant_id, product_id=product.id, quantity_used=r_item.quantity_needed)
         db.session.add(log_entry)
         
     db.session.commit()
-    flash("Scontrino registrato! Consumi salvati nel dataset storico.")
+    flash("Scontrino registrato! Magazzino e log aggiornati.")
     return redirect(url_for('main.menu'))
+
+# ==========================================
+# ROTTE PROTETTE (SOLO PER IL PROPRIETARIO)
+# ==========================================
 
 @main.route('/profile')
 @login_required
+@owner_required
 def profile():
     return render_template('profile.html', user=current_user)
 
 @main.route('/update_budget', methods=['POST'])
 @login_required
+@owner_required
 def update_budget():
     new_budget = request.form.get('budget')
     if new_budget:
@@ -146,6 +172,7 @@ def update_budget():
 
 @main.route('/export_excel')
 @login_required
+@owner_required
 def export_excel():
     products = Product.query.filter_by(user_id=current_user.id).all()
     if not products:
@@ -168,32 +195,62 @@ def export_excel():
     filename = f"Report_Magazzino_{datetime.now().strftime('%Y-%m-%d')}.xlsx"
     return send_file(output, download_name=filename, as_attachment=True)
 
-# ---> FASE 26: ROTTA ANALYTICS (FOODLOOP INTELLIGENCE) <---
 @main.route('/analytics')
 @login_required
+@owner_required
 def analytics():
     logs = ConsumptionLog.query.filter_by(user_id=current_user.id).all()
-    
     total_cost_consumed = 0
     product_stats = {}
     
     for log in logs:
-        # Calcola il costo totale consumato
         cost = log.quantity_used * log.product.unit_cost
         total_cost_consumed += cost
-        
-        # Raggruppa per prodotto per il grafico
         if log.product.name in product_stats:
             product_stats[log.product.name] += log.quantity_used
         else:
             product_stats[log.product.name] = log.quantity_used
 
-    # Prepara i dati per il grafico a torta/barre
     analytics_labels = list(product_stats.keys())
     analytics_values = list(product_stats.values())
 
     return render_template('analytics.html', 
                            total_cost=round(total_cost_consumed, 2),
-                           total_orders=len(logs), # Approssimazione
+                           total_orders=len(logs),
                            labels=analytics_labels,
                            values=analytics_values)
+
+# ---> FASE 27: GESTIONE DIPENDENTI <---
+@main.route('/settings')
+@login_required
+@owner_required
+def settings():
+    # Cerca tutti gli utenti che hanno come capo l'utente attuale
+    staff_members = User.query.filter_by(parent_id=current_user.id).all()
+    return render_template('settings.html', staff=staff_members)
+
+@main.route('/add_staff', methods=['POST'])
+@login_required
+@owner_required
+def add_staff():
+    full_name = request.form.get('full_name')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    
+    # Controlla se la mail esiste già
+    if User.query.filter_by(email=email).first():
+        flash("❌ Errore: Questa email è già in uso nel sistema.")
+        return redirect(url_for('main.settings'))
+        
+    new_staff = User(
+        email=email,
+        full_name=full_name,
+        role='staff',
+        parent_id=current_user.id
+    )
+    new_staff.set_password(password)
+    db.session.add(new_staff)
+    db.session.commit()
+    
+    flash(f"✅ Account dipendente per {full_name} creato con successo!")
+    return redirect(url_for('main.settings'))
