@@ -10,11 +10,10 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     
-    # ---> FASE 27: NUOVI CAMPI GERARCHIA E PROFILO <---
     full_name = db.Column(db.String(150), nullable=False, default="Utente")
-    restaurant_name = db.Column(db.String(150), nullable=True) # Sarà vuoto per i dipendenti
-    role = db.Column(db.String(20), nullable=False, default='owner') # Ruoli: 'owner' o 'staff'
-    parent_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) # A chi risponde questo dipendente?
+    restaurant_name = db.Column(db.String(150), nullable=True) 
+    role = db.Column(db.String(20), nullable=False, default='owner') 
+    parent_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) 
     
     monthly_budget = db.Column(db.Float, nullable=False, default=1000.0)
     
@@ -22,13 +21,10 @@ class User(UserMixin, db.Model):
     menu_items = db.relationship('MenuItem', backref='owner', lazy=True, foreign_keys="MenuItem.user_id")
     consumptions = db.relationship('ConsumptionLog', backref='owner', lazy=True, foreign_keys="ConsumptionLog.user_id")
     
-    # Magia: collega i dipendenti al capo
     staff_members = db.relationship('User', backref=db.backref('employer', remote_side=[id]))
 
-    # Proprietà intelligente: trova sempre il magazzino giusto
     @property
     def get_restaurant_id(self):
-        # Se sono staff, restituisco l'ID del mio capo. Altrimenti il mio.
         return self.parent_id if self.role == 'staff' else self.id
         
     @property
@@ -55,6 +51,13 @@ class MenuItem(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # ---> FASE 28: DETTAGLI RICETTA AVANZATA <---
+    prep_time = db.Column(db.Integer, nullable=True) # Tempo in minuti
+    allergens = db.Column(db.String(200), nullable=True) # Es: Glutine, Lattosio
+    instructions = db.Column(db.Text, nullable=True) # Procedimento
+    image_file = db.Column(db.String(150), nullable=False, default='default.jpg') # Foto
+    
     recipes = db.relationship('RecipeItem', backref='menu_item', lazy=True, cascade="all, delete-orphan")
 
 class RecipeItem(db.Model):

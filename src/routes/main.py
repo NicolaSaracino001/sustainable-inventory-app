@@ -1,14 +1,16 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, current_app
 from flask_login import login_required, current_user
 from src.models.models import MenuItem, RecipeItem, Product, ConsumptionLog, User, db
 from datetime import datetime
 from functools import wraps
+from werkzeug.utils import secure_filename
 import pandas as pd
 import io
+import os
+import uuid
 
 main = Blueprint('main', __name__)
 
-# ---> FASE 27: LUCCHETTO DI SICUREZZA (Solo Proprietari) <---
 def owner_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -21,9 +23,7 @@ def owner_required(f):
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    # Usa get_restaurant_id per caricare il magazzino del capo se sei dipendente
     rest_id = current_user.get_restaurant_id
-    
     all_products = Product.query.filter_by(user_id=rest_id).all()
     low_stock_products = [p for p in all_products if p.quantity <= p.min_threshold]
     
@@ -33,7 +33,6 @@ def dashboard():
     
     total_inventory_value = sum([p.quantity * p.unit_cost for p in all_products])
     
-    # Prende il budget corretto
     if current_user.role == 'owner':
         budget = current_user.monthly_budget
     else:
@@ -80,10 +79,7 @@ def add_inventory_item():
     cost_str = request.form.get('unit_cost')
     unit_cost = float(cost_str) if cost_str else 0.0
     
-    new_product = Product(
-        name=name, quantity=quantity, unit=unit, 
-        min_threshold=threshold, unit_cost=unit_cost, user_id=current_user.get_restaurant_id
-    )
+    new_product = Product(name=name, quantity=quantity, unit=unit, min_threshold=threshold, unit_cost=unit_cost, user_id=current_user.get_restaurant_id)
     db.session.add(new_product)
     db.session.commit()
     flash("Prodotto aggiunto al magazzino.")
@@ -113,6 +109,42 @@ def recipe(item_id):
     products = Product.query.filter_by(user_id=current_user.get_restaurant_id).all()
     recipe_items = RecipeItem.query.filter_by(menu_item_id=item_id).all()
     return render_template('recipe.html', item=item, products=products, recipe_items=recipe_items)
+
+# ---> FASE 28: SALVATAGGIO FOTO E INFO RICETTA <---
+@main.route('/update_recipe_details/<int:item_id>', methods=['POST'])
+@login_required
+def update_recipe_details(item_id):
+    item = MenuItem.query.get_or_404(item_id)
+    
+    # Previene modifiche da altri ristoranti
+    if item.user_id != current_user.get_restaurant_id:
+        flash("Accesso negato.")
+        return redirect(url_for('main.menu'))
+
+    prep_time = request.form.get('prep_time')
+    item.prep_time = int(prep_time) if prep_time else None
+    item.allergens = request.form.get('allergens')
+    item.instructions = request.form.get('instructions')
+
+    # Gestione Caricamento Immagine
+    if 'image' in request.files:
+        pic = request.files['image']
+        if pic.filename != '':
+            # Genera nome sicuro e unico
+            filename = secure_filename(pic.filename)
+            unique_name = str(uuid.uuid4().hex) + "_" + filename
+            
+            # Crea la cartella se non esiste
+            upload_folder = os.path.join(current_app.root_path, 'static', 'recipes_img')
+            os.makedirs(upload_folder, exist_ok=True)
+            
+            # Salva fisicamente il file e il nome nel DB
+            pic.save(os.path.join(upload_folder, unique_name))
+            item.image_file = unique_name
+
+    db.session.commit()
+    flash("Dettagli del Piatto aggiornati con successo! 👨‍🍳")
+    return redirect(url_for('main.recipe', item_id=item.id))
 
 @main.route('/add_recipe_item/<int:item_id>', methods=['POST'])
 @login_required
@@ -149,10 +181,6 @@ def sell_item(item_id):
     flash("Scontrino registrato! Magazzino e log aggiornati.")
     return redirect(url_for('main.menu'))
 
-# ==========================================
-# ROTTE PROTETTE (SOLO PER IL PROPRIETARIO)
-# ==========================================
-
 @main.route('/profile')
 @login_required
 @owner_required
@@ -179,13 +207,7 @@ def export_excel():
         flash("Il magazzino è vuoto, nessun dato da esportare.")
         return redirect(url_for('main.profile'))
         
-    data = {
-        "Prodotto": [p.name for p in products],
-        "Giacenza Attuale": [p.quantity for p in products],
-        "Unità": [p.unit for p in products],
-        "Costo Unitario (€)": [p.unit_cost for p in products],
-        "Valore Totale (€)": [round(p.quantity * p.unit_cost, 2) for p in products]
-    }
+    data = {"Prodotto": [p.name for p in products], "Giacenza Attuale": [p.quantity for p in products], "Unità": [p.unit for p in products], "Costo Unitario (€)": [p.unit_cost for p in products], "Valore Totale (€)": [round(p.quantity * p.unit_cost, 2) for p in products]}
     
     df = pd.DataFrame(data)
     output = io.BytesIO()
@@ -211,21 +233,12 @@ def analytics():
         else:
             product_stats[log.product.name] = log.quantity_used
 
-    analytics_labels = list(product_stats.keys())
-    analytics_values = list(product_stats.values())
+    return render_template('analytics.html', total_cost=round(total_cost_consumed, 2), total_orders=len(logs), labels=list(product_stats.keys()), values=list(product_stats.values()))
 
-    return render_template('analytics.html', 
-                           total_cost=round(total_cost_consumed, 2),
-                           total_orders=len(logs),
-                           labels=analytics_labels,
-                           values=analytics_values)
-
-# ---> FASE 27: GESTIONE DIPENDENTI <---
 @main.route('/settings')
 @login_required
 @owner_required
 def settings():
-    # Cerca tutti gli utenti che hanno come capo l'utente attuale
     staff_members = User.query.filter_by(parent_id=current_user.id).all()
     return render_template('settings.html', staff=staff_members)
 
@@ -237,20 +250,13 @@ def add_staff():
     email = request.form.get('email')
     password = request.form.get('password')
     
-    # Controlla se la mail esiste già
     if User.query.filter_by(email=email).first():
         flash("❌ Errore: Questa email è già in uso nel sistema.")
         return redirect(url_for('main.settings'))
         
-    new_staff = User(
-        email=email,
-        full_name=full_name,
-        role='staff',
-        parent_id=current_user.id
-    )
+    new_staff = User(email=email, full_name=full_name, role='staff', parent_id=current_user.id)
     new_staff.set_password(password)
     db.session.add(new_staff)
     db.session.commit()
-    
     flash(f"✅ Account dipendente per {full_name} creato con successo!")
     return redirect(url_for('main.settings'))
