@@ -9,7 +9,6 @@
         :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; }
         body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--bg-color); color: var(--text-main); padding-top: 80px; }
 
-        /* TOP NAVBAR BIANCA */
         .navbar { position: fixed; top: 0; left: 0; right: 0; height: 80px; background: #ffffff; box-shadow: 0 2px 15px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; padding: 0 50px; z-index: 1000; }
         .logo-container { display: flex; align-items: center; height: 100%; }
         .logo-img { height: 50px; width: auto; mix-blend-mode: multiply; }
@@ -20,7 +19,6 @@
         .btn-logout { color: #ef4444 !important; border: 2px solid #fee2e2; margin-left: 20px; }
         .btn-logout:hover { background: #ef4444 !important; color: white !important; border-color: #ef4444; }
 
-        /* AREA CONTENUTO */
         .content { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
         .header { margin-bottom: 30px; }
         .header h1 { margin: 0; font-size: 32px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
@@ -41,6 +39,9 @@
         th { text-align: left; padding: 12px; color: var(--text-muted); font-weight: 600; border-bottom: 2px solid #e2e8f0; }
         td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
         .badge { background: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+        .price-badge { background: #ecfdf5; color: #059669; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: 700; }
+
+        .flash-msg { padding: 16px; margin-bottom: 25px; border-radius: 12px; font-weight: 500; display: flex; align-items: center; gap: 10px; background-color: #f0fdf4; color: #16a34a; border-left: 4px solid #16a34a; }
     </style>
 </head>
 <body>
@@ -60,8 +61,16 @@
     <div class="content">
         <div class="header">
             <h1>Gestione Magazzino</h1>
-            <p>Aggiungi e monitora le tue materie prime.</p>
+            <p>Aggiungi le materie prime e tieni traccia dei costi d'acquisto.</p>
         </div>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="flash-msg"><span>✅</span> {{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
 
         <div class="card">
             <h3>➕ Registra Nuovo Prodotto</h3>
@@ -79,7 +88,8 @@
                         <option value="ml">Millilitri (ml)</option>
                         <option value="pz">Pezzi (pz)</option>
                     </select>
-                    <input type="number" step="0.01" name="threshold" placeholder="Soglia Minima di Allarme (es. 5)" required>
+                    <input type="number" step="0.01" name="threshold" placeholder="Soglia Minima (es. 5)" required>
+                    <input type="number" step="0.01" name="unit_cost" placeholder="Costo per unità (€)" required>
                 </div>
                 <button type="submit" class="btn btn-add">Aggiungi al Magazzino</button>
             </form>
@@ -92,7 +102,8 @@
                     <tr>
                         <th>Prodotto</th>
                         <th>Quantità Disponibile</th>
-                        <th>Soglia di Sicurezza</th>
+                        <th>Soglia Allarme</th>
+                        <th>Costo Unitario</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -101,10 +112,11 @@
                         <td style="font-weight: 600;">{{ product.name }}</td>
                         <td>{{ product.quantity }} <span class="badge">{{ product.unit }}</span></td>
                         <td style="color: var(--text-muted);">{{ product.min_threshold }} <span class="badge">{{ product.unit }}</span></td>
+                        <td><span class="price-badge">{{ product.unit_cost }} €</span></td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">
                             Il magazzino è vuoto. Inizia ad aggiungere i prodotti!
                         </td>
                     </tr>
