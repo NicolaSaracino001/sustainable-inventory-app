@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoodLoop - Fornitori</title>
+
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; }
@@ -66,7 +69,9 @@
             <a href="{{ url_for('main.dashboard') }}" class="nav-item">Dashboard</a>
             <a href="{{ url_for('main.inventory') }}" class="nav-item">Magazzino</a>
             <a href="{{ url_for('main.menu') }}" class="nav-item">Gestione Menù</a>
-            <a href="{{ url_for('main.suppliers') }}" class="nav-item active">Fornitori</a> <div class="user-menu">
+            <a href="{{ url_for('main.suppliers') }}" class="nav-item active">Fornitori</a>
+            
+            <div class="user-menu">
                 <div class="user-details">
                     <span class="res-name">{{ current_user.get_restaurant_name }}</span>
                     <span class="user-name">{{ current_user.full_name }} ({% if current_user.role == 'owner' %}Admin{% else %}Staff{% endif %})</span>

@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodLoop - Gestione Menù</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>FoodLoop - Intelligence & Analytics</title>
+
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; }
+        :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; --ai-color: #8b5cf6; }
         body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--bg-color); color: var(--text-main); padding-top: 80px; }
 
         .navbar { position: fixed; top: 0; left: 0; right: 0; height: 80px; background: #ffffff; box-shadow: 0 2px 15px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; padding: 0 50px; z-index: 1000; }
@@ -38,31 +42,18 @@
         .header h1 { margin: 0; font-size: 32px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
         .header p { margin: 8px 0 0 0; color: var(--text-muted); font-size: 16px; }
 
-        .card { background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #f1f5f9; }
-        .card h3 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 20px;}
-
-        .form-row { display: flex; gap: 15px; margin-bottom: 15px; align-items: center;}
-        input { flex: 1; padding: 14px 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: all 0.3s; background: #f8fafc;}
-        input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        .top-cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; margin-bottom: 30px;}
+        .card h3 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;}
         
-        .btn { padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: white; transition: all 0.3s; text-decoration: none; display: inline-block; }
-        .btn-add { background-color: var(--primary); }
-        .btn-add:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2); }
-        .btn-recipe { background-color: #3b82f6; }
-        .btn-recipe:hover { background-color: #2563eb; }
-        .btn-sell { background-color: #f59e0b; color: white; }
-        .btn-sell:hover { background-color: #d97706; }
+        .ai-card { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: none; }
+        .ai-card h3 { color: var(--ai-color); }
+        .cost-card { background: #fff1f2; border: 1px solid #ffe4e6; }
+        .cost-card h3 { color: #e11d48; }
+        .cost-value { font-size: 42px; font-weight: 800; margin: 0; letter-spacing: -1px; color: #e11d48; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 12px; color: var(--text-muted); font-weight: 600; border-bottom: 2px solid #e2e8f0; }
-        td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); vertical-align: middle;}
-        
-        .price-tag { font-weight: 700; color: var(--primary-dark); }
-        .action-buttons { display: flex; gap: 10px; }
-
-        .flash-msg { padding: 16px; margin-bottom: 25px; border-radius: 12px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
-        .flash-error { background-color: #fef2f2; color: #ef4444; border-left: 4px solid #ef4444; }
-        .flash-success { background-color: #f0fdf4; color: #16a34a; border-left: 4px solid #16a34a; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        .empty-state { text-align: center; padding: 50px; color: var(--text-muted); font-weight: 500; }
     </style>
 </head>
 <body>
@@ -74,93 +65,90 @@
         <div class="nav-links">
             <a href="{{ url_for('main.dashboard') }}" class="nav-item">Dashboard</a>
             <a href="{{ url_for('main.inventory') }}" class="nav-item">Magazzino</a>
-            <a href="{{ url_for('main.menu') }}" class="nav-item active">Gestione Menù</a>
+            <a href="{{ url_for('main.menu') }}" class="nav-item">Gestione Menù</a>
             <a href="{{ url_for('main.suppliers') }}" class="nav-item">Fornitori</a>
             
             <div class="user-menu">
                 <div class="user-details">
                     <span class="res-name">{{ current_user.get_restaurant_name }}</span>
-                    <span class="user-name">{{ current_user.full_name }} ({% if current_user.role == 'owner' %}Admin{% else %}Staff{% endif %})</span>
+                    <span class="user-name">{{ current_user.full_name }} (Admin)</span>
                 </div>
                 <div class="avatar">{{ current_user.full_name[0] | upper }}</div>
                 
                 <div class="dropdown-content">
-                    {% if current_user.role == 'owner' %}
-                        <a href="{{ url_for('main.analytics') }}">📈 FoodLoop Intelligence</a>
-                        <a href="{{ url_for('main.profile') }}">👤 Profilo & Esportazioni</a>
-                        <a href="{{ url_for('main.settings') }}">⚙️ Impostazioni Staff</a>
-                    {% endif %}
+                    <a href="{{ url_for('main.analytics') }}">📈 FoodLoop Intelligence</a>
+                    <a href="{{ url_for('main.profile') }}">👤 Profilo & Esportazioni</a>
+                    <a href="{{ url_for('main.settings') }}">⚙️ Impostazioni Staff</a>
                     <a href="{{ url_for('auth.logout') }}" class="logout-link">🚪 Esci dall'account</a>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div class="content">
         <div class="header">
-            <h1>Gestione Menù</h1>
-            <p>Crea i tuoi piatti e collegali agli ingredienti del magazzino.</p>
+            <h1>FoodLoop Intelligence 🧠</h1>
+            <p>Il ponte di comando: analizza i consumi, gli sprechi e il Food Cost storico.</p>
         </div>
-        
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              {% if 'Errore' in message or 'Impossibile' in message or '❌' in message %}
-                <div class="flash-msg flash-error"><span>⚠️</span> {{ message }}</div>
-              {% else %}
-                <div class="flash-msg flash-success"><span>✅</span> {{ message }}</div>
-              {% endif %}
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
 
-        <div class="card">
-            <h3>➕ Aggiungi un nuovo Piatto</h3>
-            <form action="{{ url_for('main.add_menu_item') }}" method="POST" class="form-row">
-                <input type="text" name="name" placeholder="Es. Pizza Margherita" required>
-                {% if current_user.role == 'owner' %}
-                    <input type="number" step="0.01" name="price" placeholder="Prezzo (€)" required style="max-width: 150px;">
+        <div class="top-cards-grid">
+            <div class="card cost-card">
+                <h3>📉 Food Cost Consumato (Storico)</h3>
+                <p class="cost-value">{{ total_cost }} €</p>
+                <p style="margin-top: 10px; font-size: 14px; color: #f43f5e;">Valore totale delle materie prime usate in cucina fino ad oggi.</p>
+            </div>
+            
+            <div class="card ai-card">
+                <h3>✨ Analisi Predittiva Motore</h3>
+                {% if total_orders > 0 %}
+                    <p style="font-weight: 600; font-size: 18px;">L'algoritmo ha processato le materie prime consumate.</p>
+                    <p style="margin-top: 10px;">Il sistema sta creando il tuo modello statistico basato sulle variazioni di magazzino. Preparati a ricevere allerte sui giorni di picco.</p>
                 {% else %}
-                    <input type="hidden" name="price" value="0">
+                    <p>Nessun dato registrato. Simula degli ordini dal "Gestione Menù" per attivare l'Intelligenza Artificiale.</p>
                 {% endif %}
-                <button type="submit" class="btn btn-add">Crea Piatto</button>
-            </form>
+            </div>
         </div>
 
         <div class="card">
-            <h3>📋 La tua Carta dei Piatti</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome del Piatto</th>
-                        {% if current_user.role == 'owner' %}<th>Prezzo di Vendita</th>{% endif %}
-                        <th>Azioni Operative</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in menu_items %}
-                    <tr>
-                        <td style="font-weight: 600;">{{ item.name }}</td>
-                        {% if current_user.role == 'owner' %}
-                            <td class="price-tag">{{ item.price }} €</td>
-                        {% endif %}
-                        <td class="action-buttons">
-                            <a href="{{ url_for('main.recipe', item_id=item.id) }}" class="btn btn-recipe">📝 Modifica Ricetta</a>
-                            <form action="{{ url_for('main.sell_item', item_id=item.id) }}" method="POST" style="margin: 0;">
-                                <button type="submit" class="btn btn-sell">🛒 Simula Ordine</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 30px;">
-                            Non hai ancora aggiunto piatti al tuo menù.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <h3>📊 Grafico Consumi per Ingrediente</h3>
+            {% if total_orders > 0 %}
+                <div class="chart-container">
+                    <canvas id="consumptionChart"></canvas>
+                </div>
+                
+                <script id="chartLabels" type="application/json">{{ labels|tojson|safe }}</script>
+                <script id="chartValues" type="application/json">{{ values|tojson|safe }}</script>
+            {% else %}
+                <div class="empty-state">
+                    Non ci sono ancora dati sufficienti per generare il grafico.
+                </div>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('consumptionChart');
+            if (canvas && document.getElementById('chartLabels')) {
+                const ctx = canvas.getContext('2d');
+                const rawLabels = document.getElementById('chartLabels').textContent;
+                const rawValues = document.getElementById('chartValues').textContent;
+                
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: JSON.parse(rawLabels),
+                        datasets: [{
+                            data: JSON.parse(rawValues),
+                            backgroundColor: ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { family: 'Inter', size: 14 } } } }, cutout: '70%' }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
