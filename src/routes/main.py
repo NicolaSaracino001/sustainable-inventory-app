@@ -13,6 +13,14 @@ import google.generativeai as genai
 
 main = Blueprint('main', __name__)
 
+# ---> FASE 32: IL BUTTAFUORI (BLOCCO ACCESSO) <---
+@main.before_request
+def check_password_change():
+    if current_user.is_authenticated:
+        # Se l'utente deve cambiare password e non è già sulla pagina di cambio o di logout, bloccalo!
+        if current_user.must_change_password and request.endpoint not in ['auth.change_password', 'auth.logout', 'static']:
+            return redirect(url_for('auth.change_password'))
+
 def owner_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -175,7 +183,6 @@ def add_recipe_item(item_id):
     flash("Ingrediente collegato alla ricetta.")
     return redirect(url_for('main.recipe', item_id=item_id))
 
-# ---> FASE 31: IL CERVELLO AI (FOODLOOP CO-PILOT) <---
 @main.route('/generate_recipe_ai/<int:item_id>', methods=['POST'])
 @login_required
 def generate_recipe_ai(item_id):
@@ -191,7 +198,6 @@ def generate_recipe_ai(item_id):
         flash("❌ Il tuo magazzino è vuoto. Aggiungi materie prime prima di usare l'AI.")
         return redirect(url_for('main.recipe', item_id=item_id))
 
-    # Prepariamo la lista del magazzino per l'AI
     inventory_list = "\n".join([f"ID: {p.id} | Nome: {p.name} | Unità: {p.unit}" for p in products])
     
     prompt = f"""
@@ -212,26 +218,22 @@ def generate_recipe_ai(item_id):
     try:
         genai.configure(api_key=api_key)
         
-        # SISTEMA UFFICIALE DI RICERCA MODELLO GOOGLE
         modello_scelto = None
         for m in genai.list_models():
             if 'generateContent' in m.supported_generation_methods:
                 modello_scelto = m.name
-                break  # Trovato il primo modello valido e ufficiale per il tuo account
+                break
                 
         if not modello_scelto:
             flash("❌ Errore critico: Nessun modello AI disponibile per la tua API Key.")
             return redirect(url_for('main.recipe', item_id=item_id))
 
-        # Esecuzione con il modello ufficiale trovato
         model = genai.GenerativeModel(modello_scelto)
         response = model.generate_content(prompt)
         
-        # Pulizia della risposta per estrarre solo il JSON puro
         raw_text = response.text.replace('```json', '').replace('```', '').strip()
         suggested_items = json.loads(raw_text)
         
-        # Svuotiamo la vecchia ricetta e inseriamo quella nuova
         RecipeItem.query.filter_by(menu_item_id=item.id).delete()
         
         for ing in suggested_items:
@@ -280,6 +282,25 @@ def sell_item(item_id):
     flash("Scontrino registrato! Magazzino e log aggiornati.")
     return redirect(url_for('main.menu'))
 
+# ECCO LA ROTTA ANALYTICS CHE MANCAVA!
+@main.route('/analytics')
+@login_required
+@owner_required
+def analytics():
+    logs = ConsumptionLog.query.filter_by(user_id=current_user.id).all()
+    total_cost_consumed = 0
+    product_stats = {}
+    
+    for log in logs:
+        cost = log.quantity_used * log.product.unit_cost
+        total_cost_consumed += cost
+        if log.product.name in product_stats:
+            product_stats[log.product.name] += log.quantity_used
+        else:
+            product_stats[log.product.name] = log.quantity_used
+
+    return render_template('analytics.html', total_cost=round(total_cost_consumed, 2), total_orders=len(logs), labels=list(product_stats.keys()), values=list(product_stats.values()))
+
 @main.route('/profile')
 @login_required
 @owner_required
@@ -315,24 +336,6 @@ def export_excel():
     filename = f"Report_Magazzino_{datetime.now().strftime('%Y-%m-%d')}.xlsx"
     return send_file(output, download_name=filename, as_attachment=True)
 
-@main.route('/analytics')
-@login_required
-@owner_required
-def analytics():
-    logs = ConsumptionLog.query.filter_by(user_id=current_user.id).all()
-    total_cost_consumed = 0
-    product_stats = {}
-    
-    for log in logs:
-        cost = log.quantity_used * log.product.unit_cost
-        total_cost_consumed += cost
-        if log.product.name in product_stats:
-            product_stats[log.product.name] += log.quantity_used
-        else:
-            product_stats[log.product.name] = log.quantity_used
-
-    return render_template('analytics.html', total_cost=round(total_cost_consumed, 2), total_orders=len(logs), labels=list(product_stats.keys()), values=list(product_stats.values()))
-
 @main.route('/settings')
 @login_required
 @owner_required
@@ -340,13 +343,14 @@ def settings():
     staff_members = User.query.filter_by(parent_id=current_user.id).all()
     return render_template('settings.html', staff=staff_members)
 
+# ---> FASE 32: MARCHIATURA DEL DIPENDENTE <---
 @main.route('/add_staff', methods=['POST'])
 @login_required
 @owner_required
 def add_staff():
     full_name = request.form.get('full_name')
     email = request.form.get('email')
-    password = request.form.get('password')
+    password = request.form.get('password') # Questa ora è solo temporanea!
     
     if User.query.filter_by(email=email).first():
         flash("❌ Errore: Questa email è già in uso.")
@@ -354,7 +358,11 @@ def add_staff():
         
     new_staff = User(email=email, full_name=full_name, role='staff', parent_id=current_user.id)
     new_staff.set_password(password)
+    
+    # Ecco la trappola: obblighiamo il dipendente a cambiarla!
+    new_staff.must_change_password = True 
+    
     db.session.add(new_staff)
     db.session.commit()
-    flash(f"✅ Account dipendente per {full_name} creato!")
+    flash(f"✅ Account creato! Comunica a {full_name} la password temporanea: dovrà cambiarla al primo accesso.")
     return redirect(url_for('main.settings'))

@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoodLoop - Impostazioni Staff</title>
-
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; }
@@ -42,7 +40,8 @@
         .header p { margin: 8px 0 0 0; color: var(--text-muted); font-size: 16px; }
 
         .card { background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #f1f5f9; }
-        .card h3 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 20px;}
+        .card h3 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 5px;}
+        .card-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px;}
 
         .form-row { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;}
         input { flex: 1; padding: 14px 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: all 0.3s; min-width: 200px; background: #f8fafc; }
@@ -105,10 +104,11 @@
 
         <div class="card">
             <h3>➕ Assumi un nuovo Membro dello Staff</h3>
+            <p class="card-desc">Crea l'account inserendo una Password Temporanea. Al primo accesso, FoodLoop obbligherà il dipendente a sceglierne una personale per garantire la sua privacy.</p>
             <form action="{{ url_for('main.add_staff') }}" method="POST" class="form-row">
                 <input type="text" name="full_name" placeholder="Nome del dipendente (es. Luigi)" required>
                 <input type="email" name="email" placeholder="Email (es. luigi@ristorante.it)" required>
-                <input type="password" name="password" placeholder="Scegli una Password" required>
+                <input type="password" name="password" placeholder="Password Temporanea (es. ciao123)" required>
                 <button type="submit" class="btn">Crea Account Staff</button>
             </form>
         </div>
