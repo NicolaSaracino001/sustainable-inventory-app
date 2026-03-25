@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoodLoop - Scheda Ricetta</title>
-
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; }
@@ -30,7 +28,6 @@
         .user-menu::after { content: ''; position: absolute; top: 100%; left: 0; width: 100%; height: 15px; background: transparent; }
         .dropdown-content { display: none; position: absolute; top: calc(100% + 10px); right: 0; background-color: white; min-width: 220px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; z-index: 1001; border: 1px solid #e2e8f0; }
         .user-menu:hover .dropdown-content { display: block; }
-        
         .dropdown-content a { color: var(--text-main); padding: 14px 20px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; transition: 0.2s; }
         .dropdown-content a:hover { background-color: #f8fafc; color: var(--primary); }
         .logout-link { color: #ef4444 !important; border-top: 1px solid #f1f5f9; }
@@ -57,11 +54,17 @@
         .input-group input:focus, .input-group textarea:focus { border-color: var(--primary); background: white; }
         .input-group textarea { resize: vertical; min-height: 120px; }
         
-        .btn { padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: white; transition: all 0.3s; display: inline-block; width: 100%; }
+        .btn { padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: white; transition: all 0.3s; display: inline-block; width: 100%; box-sizing: border-box;}
         .btn-primary { background-color: var(--primary); }
         .btn-primary:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2); }
         .btn-secondary { background-color: #3b82f6; }
         .btn-secondary:hover { background-color: #2563eb; transform: translateY(-2px);}
+        
+        .btn-ai { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); margin-bottom: 20px; text-align: center; }
+        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(139, 92, 246, 0.3); }
+
+        .btn-delete { background: #fee2e2; color: #ef4444; border-radius: 6px; padding: 6px 10px; font-size: 12px; margin:0; width: auto; font-weight: 700; transition: 0.2s; border: 1px solid transparent;}
+        .btn-delete:hover { background: #fecaca; border-color: #ef4444; transform: scale(1.05);}
 
         .form-row-ing { display: flex; gap: 10px; margin-bottom: 15px;}
         .form-row-ing select { flex: 2; }
@@ -123,7 +126,7 @@
               {% if 'Errore' in message or '❌' in message %}
                 <div class="flash-msg flash-error"><span>⚠️</span> {{ message }}</div>
               {% else %}
-                <div class="flash-msg flash-success"><span>✅</span> {{ message }}</div>
+                <div class="flash-msg flash-success"><span>✨</span> {{ message }}</div>
               {% endif %}
             {% endfor %}
           {% endif %}
@@ -164,7 +167,16 @@
 
             <div>
                 <div class="card" style="margin-bottom: 30px;">
-                    <h3>➕ Inserisci Ingrediente</h3>
+                    <h3>🤖 FoodLoop Co-Pilot</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-top: 0;">L'AI leggerà il nome del tuo piatto e i prodotti nel tuo magazzino per calcolare automaticamente la distinta base.</p>
+                    
+                    <form action="{{ url_for('main.generate_recipe_ai', item_id=item.id) }}" method="POST">
+                        <button type="submit" class="btn btn-ai">✨ Genera Distinta con Intelligenza Artificiale</button>
+                    </form>
+
+                    <div style="border-top: 1px solid #f1f5f9; margin: 20px 0;"></div>
+
+                    <h3 style="font-size: 15px;">➕ Oppure inserisci manualmente</h3>
                     <form action="{{ url_for('main.add_recipe_item', item_id=item.id) }}" method="POST" class="form-row-ing">
                         <select name="product_id" required class="input-group" style="margin-bottom: 0;">
                             <option value="" disabled selected>Cerca nel Magazzino...</option>
@@ -172,8 +184,8 @@
                             <option value="{{ p.id }}">{{ p.name }} (in {{ p.unit }})</option>
                             {% endfor %}
                         </select>
-                        <input type="number" step="0.01" name="quantity" placeholder="Dose (es. 0.5)" required class="input-group" style="margin-bottom: 0; padding: 12px;">
-                        <button type="submit" class="btn btn-secondary" style="width: auto;">Aggiungi</button>
+                        <input type="number" step="0.01" name="quantity" placeholder="Dose" required class="input-group" style="margin-bottom: 0; padding: 12px;">
+                        <button type="submit" class="btn btn-secondary" style="width: auto;">Add</button>
                     </form>
                 </div>
 
@@ -184,6 +196,7 @@
                             <tr>
                                 <th>Ingrediente</th>
                                 <th>Dose per porzione</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -191,11 +204,16 @@
                             <tr>
                                 <td style="font-weight: 600;">{{ r.product.name }}</td>
                                 <td>{{ r.quantity_needed }} <span class="badge">{{ r.product.unit }}</span></td>
+                                <td style="text-align: right;">
+                                    <form action="{{ url_for('main.delete_recipe_item', recipe_item_id=r.id) }}" method="POST" style="margin: 0; display: inline-block;">
+                                        <button type="submit" class="btn btn-delete">Rimuovi</button>
+                                    </form>
+                                </td>
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="2" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                                    Nessun ingrediente collegato.
+                                <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                                    Nessun ingrediente collegato. Prova la magia dell'AI!
                                 </td>
                             </tr>
                             {% endfor %}

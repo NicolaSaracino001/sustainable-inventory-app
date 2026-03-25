@@ -8,6 +8,8 @@ import pandas as pd
 import io
 import os
 import uuid
+import json
+import google.generativeai as genai
 
 main = Blueprint('main', __name__)
 
@@ -93,7 +95,6 @@ def add_inventory_item():
     flash("Prodotto aggiunto al magazzino.")
     return redirect(url_for('main.inventory'))
 
-# ---> FASE 29: ROTTE PER I FORNITORI <---
 @main.route('/suppliers')
 @login_required
 def suppliers():
@@ -105,7 +106,6 @@ def suppliers():
 def add_supplier():
     name = request.form.get('name')
     contact = request.form.get('contact')
-    
     new_sup = Supplier(name=name, contact_info=contact, user_id=current_user.get_restaurant_id)
     db.session.add(new_sup)
     db.session.commit()
@@ -173,6 +173,87 @@ def add_recipe_item(item_id):
     db.session.add(new_recipe_item)
     db.session.commit()
     flash("Ingrediente collegato alla ricetta.")
+    return redirect(url_for('main.recipe', item_id=item_id))
+
+# ---> FASE 31: IL CERVELLO AI (FOODLOOP CO-PILOT) <---
+@main.route('/generate_recipe_ai/<int:item_id>', methods=['POST'])
+@login_required
+def generate_recipe_ai(item_id):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        flash("❌ Errore: Manca la chiave API di Gemini nel file .env!")
+        return redirect(url_for('main.recipe', item_id=item_id))
+
+    item = MenuItem.query.get_or_404(item_id)
+    products = Product.query.filter_by(user_id=current_user.get_restaurant_id).all()
+    
+    if not products:
+        flash("❌ Il tuo magazzino è vuoto. Aggiungi materie prime prima di usare l'AI.")
+        return redirect(url_for('main.recipe', item_id=item_id))
+
+    # Prepariamo la lista del magazzino per l'AI
+    inventory_list = "\n".join([f"ID: {p.id} | Nome: {p.name} | Unità: {p.unit}" for p in products])
+    
+    prompt = f"""
+    Sei l'Executive Chef di un ristorante e devi creare la distinta base per il piatto: "{item.name}".
+    Hai a disposizione SOLO questi ingredienti nel tuo magazzino:
+    
+    {inventory_list}
+    
+    Scegli SOLO gli ingredienti strettamente necessari per questo piatto presenti nella lista. 
+    Stima una quantità logica per 1 singola porzione, rispettando l'unità di misura indicata (es. se è in 'kg', scrivi 0.1 per 100 grammi).
+    
+    Devi rispondere ESATTAMENTE E SOLO con un array JSON in questo formato, senza markdown, senza spiegazioni, senza virgolette extra:
+    [
+        {{"product_id": numero_id, "quantity": quantita_decimale}}
+    ]
+    """
+
+    try:
+        genai.configure(api_key=api_key)
+        
+        # SISTEMA UFFICIALE DI RICERCA MODELLO GOOGLE
+        modello_scelto = None
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                modello_scelto = m.name
+                break  # Trovato il primo modello valido e ufficiale per il tuo account
+                
+        if not modello_scelto:
+            flash("❌ Errore critico: Nessun modello AI disponibile per la tua API Key.")
+            return redirect(url_for('main.recipe', item_id=item_id))
+
+        # Esecuzione con il modello ufficiale trovato
+        model = genai.GenerativeModel(modello_scelto)
+        response = model.generate_content(prompt)
+        
+        # Pulizia della risposta per estrarre solo il JSON puro
+        raw_text = response.text.replace('```json', '').replace('```', '').strip()
+        suggested_items = json.loads(raw_text)
+        
+        # Svuotiamo la vecchia ricetta e inseriamo quella nuova
+        RecipeItem.query.filter_by(menu_item_id=item.id).delete()
+        
+        for ing in suggested_items:
+            new_r_item = RecipeItem(menu_item_id=item.id, product_id=int(ing['product_id']), quantity_needed=float(ing['quantity']))
+            db.session.add(new_r_item)
+            
+        db.session.commit()
+        flash(f"✨ Magia AI completata! (Modello ufficiale usato: {modello_scelto})")
+        
+    except Exception as e:
+        flash(f"❌ Errore durante la generazione AI: Riprova. Dettaglio: {str(e)}")
+
+    return redirect(url_for('main.recipe', item_id=item_id))
+
+@main.route('/delete_recipe_item/<int:recipe_item_id>', methods=['POST'])
+@login_required
+def delete_recipe_item(recipe_item_id):
+    r_item = RecipeItem.query.get_or_404(recipe_item_id)
+    item_id = r_item.menu_item_id
+    db.session.delete(r_item)
+    db.session.commit()
+    flash("Ingrediente rimosso dalla ricetta.")
     return redirect(url_for('main.recipe', item_id=item_id))
 
 @main.route('/sell_item/<int:item_id>', methods=['POST'])
