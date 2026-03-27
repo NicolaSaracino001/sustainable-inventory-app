@@ -101,7 +101,6 @@ def add_inventory_item():
     flash("Prodotto aggiunto al magazzino.")
     return redirect(url_for('main.inventory'))
 
-# ---> FASE 34: INVENTARIO DIFFERENZIALE AUTOMATICO <---
 @main.route('/align_inventory/<int:product_id>', methods=['POST'])
 @login_required
 def align_inventory(product_id):
@@ -117,7 +116,6 @@ def align_inventory(product_id):
         return redirect(url_for('main.inventory'))
 
     if actual_quantity < product.quantity:
-        # Abbiamo meno merce del previsto = C'è stato uno SPRECO/PERDITA
         wasted_qty = product.quantity - actual_quantity
         cost_lost = wasted_qty * product.unit_cost
         
@@ -131,23 +129,58 @@ def align_inventory(product_id):
         flash(f"⚖️ Magazzino allineato! Rilevati {round(wasted_qty, 2)} {product.unit} di scarto per '{product.name}'. (Costo perso: {round(cost_lost, 2)} €)")
     
     elif actual_quantity > product.quantity:
-        # Abbiamo più merce del previsto = Errore di caricamento o bonus
         added_qty = actual_quantity - product.quantity
         flash(f"⚖️ Magazzino allineato! Aggiunti {round(added_qty, 2)} {product.unit} extra di '{product.name}' trovati in giacenza.")
     else:
         flash(f"✅ Nessuna differenza rilevata. I conti di '{product.name}' tornano perfettamente!")
 
-    # Aggiorniamo la giacenza ufficiale con quella reale contata
     product.quantity = actual_quantity
     db.session.commit()
 
     return redirect(url_for('main.inventory'))
 
+# ---> FASE 35: GENERATORE ORDINI AUTOMATICI <---
 @main.route('/suppliers')
 @login_required
 def suppliers():
-    suppliers = Supplier.query.filter_by(user_id=current_user.get_restaurant_id).all()
-    return render_template('suppliers.html', suppliers=suppliers)
+    rest_id = current_user.get_restaurant_id
+    suppliers_list = Supplier.query.filter_by(user_id=rest_id).all()
+    
+    # 1. Troviamo i prodotti in esaurimento
+    low_stock_products = Product.query.filter(
+        Product.user_id == rest_id,
+        Product.quantity <= Product.min_threshold
+    ).all()
+
+    # 2. Raggruppiamo i prodotti per fornitore
+    orders_by_supplier = {}
+    for p in low_stock_products:
+        sup_name = p.supplier.name if p.supplier else "🛒 Fornitore Non Assegnato (Supermercato)"
+        sup_contact = p.supplier.contact_info if p.supplier else ""
+        
+        if sup_name not in orders_by_supplier:
+            orders_by_supplier[sup_name] = {'contact': sup_contact, 'items': []}
+        
+        # Consigliamo di riordinare il doppio della soglia minima
+        suggested = (p.min_threshold * 2) - p.quantity
+        if suggested <= 0: suggested = 1.0
+
+        orders_by_supplier[sup_name]['items'].append({
+            'name': p.name,
+            'current': p.quantity,
+            'unit': p.unit,
+            'suggested': round(suggested, 2)
+        })
+
+    # 3. Generiamo il testo formattato per WhatsApp
+    for sup_name, data in orders_by_supplier.items():
+        testo_wa = f"📦 ORDINE MERCE\nDa: {current_user.get_restaurant_name}\n\nCiao! Ecco la lista dei prodotti da rifornire:\n\n"
+        for item in data['items']:
+            testo_wa += f"• {item['suggested']} {item['unit']} di {item['name']}\n"
+        testo_wa += "\nGrazie per la disponibilità!"
+        data['wa_text'] = testo_wa
+
+    return render_template('suppliers.html', suppliers=suppliers_list, auto_orders=orders_by_supplier)
 
 @main.route('/add_supplier', methods=['POST'])
 @login_required

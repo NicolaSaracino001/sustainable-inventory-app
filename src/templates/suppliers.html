@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodLoop - Fornitori</title>
-
+    <title>FoodLoop - Fornitori e Ordini</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; }
         body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--bg-color); color: var(--text-main); padding-top: 80px; }
@@ -41,22 +39,34 @@
         .header h1 { margin: 0; font-size: 32px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
         .header p { margin: 8px 0 0 0; color: var(--text-muted); font-size: 16px; }
 
-        .card { background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #f1f5f9; }
-        .card h3 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 20px;}
+        /* Struttura a griglia per dividere Fornitori e Ordini */
+        .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; } }
 
-        .form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
-        input { flex: 1; padding: 14px 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: all 0.3s; min-width: 150px; background: #f8fafc; }
+        .card { background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #f1f5f9; }
+        .card h3 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;}
+
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-direction: column;}
+        input { width: 100%; padding: 14px 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: all 0.3s; box-sizing: border-box; background: #f8fafc; }
         input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
         
-        .btn { padding: 14px 20px; border: none; border-radius: 12px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; color: white; transition: all 0.3s; }
-        .btn-add { background-color: var(--primary); width: 100%; margin-top: 10px; }
-        .btn-add:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2); }
+        .btn { width: 100%; padding: 14px 20px; border: none; border-radius: 12px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: white; transition: all 0.3s; background-color: var(--text-main); }
+        .btn:hover { background-color: black; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); }
+        
+        .supplier-list { list-style: none; padding: 0; margin: 0; }
+        .supplier-item { padding: 15px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 10px; background: #f8fafc; }
+        .supplier-item strong { display: block; font-size: 16px; margin-bottom: 5px; color: var(--text-main);}
+        .supplier-item span { font-size: 14px; color: var(--text-muted); }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 12px; color: var(--text-muted); font-weight: 600; border-bottom: 2px solid #e2e8f0; }
-        td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
+        /* Stile Card Ordini */
+        .order-card { padding: 20px; border: 1px solid #e2e8f0; border-radius: 15px; margin-bottom: 15px; background: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .order-card h4 { margin: 0 0 10px 0; color: var(--primary-dark); font-size: 16px; }
+        .order-list { font-family: monospace; font-size: 14px; background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; line-height: 1.6; }
+        .btn-wa { background-color: #25D366; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-wa:hover { background-color: #128C7E; }
 
         .flash-msg { padding: 16px; margin-bottom: 25px; border-radius: 12px; font-weight: 500; display: flex; align-items: center; gap: 10px; background-color: #f0fdf4; color: #16a34a; border-left: 4px solid #16a34a; }
+        .empty-state { text-align: center; color: var(--text-muted); padding: 30px 10px; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -74,78 +84,109 @@
             <div class="user-menu">
                 <div class="user-details">
                     <span class="res-name">{{ current_user.get_restaurant_name }}</span>
-                    <span class="user-name">{{ current_user.full_name }} ({% if current_user.role == 'owner' %}Admin{% else %}Staff{% endif %})</span>
+                    <span class="user-name">{{ current_user.full_name }} (Admin)</span>
                 </div>
                 <div class="avatar">{{ current_user.full_name[0] | upper }}</div>
                 
                 <div class="dropdown-content">
-                    {% if current_user.role == 'owner' %}
-                        <a href="{{ url_for('main.analytics') }}">📈 FoodLoop Intelligence</a>
-                        <a href="{{ url_for('main.profile') }}">👤 Profilo & Esportazioni</a>
-                        <a href="{{ url_for('main.settings') }}">⚙️ Impostazioni Staff</a>
-                    {% endif %}
+                    <a href="{{ url_for('main.analytics') }}">📈 FoodLoop Intelligence</a>
+                    <a href="{{ url_for('main.profile') }}">👤 Profilo & Esportazioni</a>
+                    <a href="{{ url_for('main.settings') }}">⚙️ Impostazioni Staff</a>
                     <a href="{{ url_for('auth.logout') }}" class="logout-link">🚪 Esci dall'account</a>
                 </div>
             </div>
         </div>
     </div>
-
+    
     <div class="content">
         <div class="header">
-            <h1>Rubrica Fornitori 🚚</h1>
-            <p>Aggiungi i tuoi fornitori per collegarli agli ingredienti del magazzino.</p>
+            <h1>Fornitori e Ordini 🚚</h1>
+            <p>Gestisci la rubrica e genera automaticamente le liste della spesa per i prodotti sotto scorta.</p>
         </div>
 
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
-              <div class="flash-msg"><span>✅</span> {{ message }}</div>
+              <div class="flash-msg">{{ message }}</div>
             {% endfor %}
           {% endif %}
         {% endwith %}
 
-        <div class="card">
-            <h3>➕ Registra Nuovo Fornitore</h3>
-            <form action="{{ url_for('main.add_supplier') }}" method="POST">
-                <div class="form-row">
-                    <input type="text" name="name" placeholder="Nome Azienda (es. Metro, Rossi Carni)" required>
-                    <input type="text" name="contact" placeholder="Contatto (es. Telefono o Email)" required>
+        <div class="layout-grid">
+            <div>
+                <div class="card">
+                    <h3>➕ Aggiungi Fornitore</h3>
+                    <form action="{{ url_for('main.add_supplier') }}" method="POST">
+                        <div class="form-row">
+                            <input type="text" name="name" placeholder="Nome Azienda (es. Rossi Carni)" required>
+                            <input type="text" name="contact" placeholder="Email o Telefono" required>
+                        </div>
+                        <button type="submit" class="btn">Salva in Rubrica</button>
+                    </form>
                 </div>
-                <button type="submit" class="btn btn-add">Aggiungi in Rubrica</button>
-            </form>
-        </div>
 
-        <div class="card">
-            <h3>📇 I Tuoi Fornitori</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Azienda</th>
-                        <th>Info Contatto</th>
-                        <th>Prodotti Forniti</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sup in suppliers %}
-                    <tr>
-                        <td style="font-weight: 600;">{{ sup.name }}</td>
-                        <td style="color: var(--text-muted);">{{ sup.contact_info }}</td>
-                        <td>
-                            <span style="background: #e2e8f0; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700;">
-                                {{ sup.products | length }} Prodotti
-                            </span>
-                        </td>
-                    </tr>
+                <div class="card">
+                    <h3>📋 Rubrica</h3>
+                    <ul class="supplier-list">
+                        {% for s in suppliers %}
+                        <li class="supplier-item">
+                            <strong>{{ s.name }}</strong>
+                            <span>{{ s.contact_info }}</span>
+                        </li>
+                        {% else %}
+                        <div class="empty-state">Nessun fornitore salvato.</div>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <h3>🛒 Liste della Spesa Automatiche</h3>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">
+                        Generato in base ai prodotti scesi sotto la soglia minima di sicurezza.
+                    </p>
+
+                    {% if auto_orders %}
+                        {% for sup_name, data in auto_orders.items() %}
+                        <div class="order-card">
+                            <h4>Da ordinare da: {{ sup_name }}</h4>
+                            <div class="order-list">
+                                {% for item in data['items'] %}
+                                    • {{ item.suggested }} {{ item.unit }} di {{ item.name }}<br>
+                                {% endfor %}
+                            </div>
+                            
+                            <button class="btn btn-wa" id="btn-{{ loop.index }}" onclick='copyToClipboard({{ data.wa_text|tojson|safe }}, "btn-{{ loop.index }}")'>
+                                Copia Testo per WhatsApp
+                            </button>
+                        </div>
+                        {% endfor %}
                     {% else %}
-                    <tr>
-                        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 30px;">
-                            Nessun fornitore in rubrica.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        <div class="empty-state" style="background: #f0fdf4; border: 1px dashed #22c55e; border-radius: 12px; color: #15803d;">
+                            🎉 Tutto perfetto! Nessun prodotto sotto scorta.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        function copyToClipboard(text, btnId) {
+            navigator.clipboard.writeText(text).then(function() {
+                var btn = document.getElementById(btnId);
+                var originalText = btn.innerText;
+                btn.innerText = "✅ Testo Copiato!";
+                btn.style.backgroundColor = "#15803d";
+                setTimeout(function() {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = "";
+                }, 2000);
+            }).catch(function(err) {
+                alert("Errore durante la copia. Riprova.");
+            });
+        }
+    </script>
 </body>
 </html>
