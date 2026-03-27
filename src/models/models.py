@@ -14,8 +14,6 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(50), nullable=False, default='owner')
     parent_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     monthly_budget = db.Column(db.Float, default=0.0)
-    
-    # FASE 32: Regola per il cambio password obbligatorio al primo accesso
     must_change_password = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
@@ -80,5 +78,15 @@ class ConsumptionLog(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity_used = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    product = db.relationship('Product')
 
+# ---> FASE 34: TABELLA REGISTRO SPRECHI <---
+class WasteLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    quantity_wasted = db.Column(db.Float, nullable=False)
+    cost_lost = db.Column(db.Float, nullable=False) 
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
     product = db.relationship('Product')

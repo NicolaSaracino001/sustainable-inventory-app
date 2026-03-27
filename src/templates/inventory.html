@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoodLoop - Magazzino</title>
-
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; }
         body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--bg-color); color: var(--text-main); padding-top: 80px; }
@@ -42,22 +40,24 @@
         .header p { margin: 8px 0 0 0; color: var(--text-muted); font-size: 16px; }
 
         .card { background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #f1f5f9; }
-        .card h3 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 20px;}
+        .card h3 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;}
 
-        .form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;}
         input, select { flex: 1; padding: 14px 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: all 0.3s; min-width: 150px; background: #f8fafc; }
         input:focus, select:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
         
-        .btn { padding: 14px 20px; border: none; border-radius: 12px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; color: white; transition: all 0.3s; }
-        .btn-add { background-color: var(--primary); width: 100%; margin-top: 10px; }
-        .btn-add:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2); }
-
+        .btn { padding: 14px 20px; border: none; border-radius: 12px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: white; transition: all 0.3s; background-color: var(--text-main); }
+        .btn:hover { background-color: black; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { text-align: left; padding: 12px; color: var(--text-muted); font-weight: 600; border-bottom: 2px solid #e2e8f0; }
-        td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
-        .badge { background: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
-        .price-badge { background: #ecfdf5; color: #059669; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: 700; }
-        .sup-badge { background: #fef3c7; color: #d97706; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+        td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); vertical-align: middle;}
+        
+        .badge { background: #f1f5f9; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .badge-danger { background: #fef2f2; color: #ef4444; }
+
+        .btn-delete { background: #fee2e2; color: #ef4444; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; border: 1px solid transparent; cursor: pointer; transition: 0.2s;}
+        .btn-delete:hover { background: #fecaca; transform: scale(1.05);}
 
         .flash-msg { padding: 16px; margin-bottom: 25px; border-radius: 12px; font-weight: 500; display: flex; align-items: center; gap: 10px; background-color: #f0fdf4; color: #16a34a; border-left: 4px solid #16a34a; }
     </style>
@@ -92,86 +92,79 @@
             </div>
         </div>
     </div>
-
+    
     <div class="content">
         <div class="header">
-            <h1>Gestione Magazzino</h1>
-            <p>Aggiungi le materie prime, tieni traccia dei costi e dei fornitori.</p>
+            <h1>Magazzino Centrale 📦</h1>
+            <p>Gestisci le materie prime, registra gli acquisti e traccia gli sprechi.</p>
         </div>
 
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
-              <div class="flash-msg"><span>✅</span> {{ message }}</div>
+              <div class="flash-msg">{{ message }}</div>
             {% endfor %}
           {% endif %}
         {% endwith %}
 
         <div class="card">
-            <h3>➕ Registra Nuovo Prodotto</h3>
+            <h3>➕ Inserisci Nuovo Prodotto</h3>
             <form action="{{ url_for('main.add_inventory_item') }}" method="POST">
                 <div class="form-row">
-                    <input type="text" name="name" placeholder="Es. Farina Tipo 1" required>
-                    <input type="number" step="0.01" name="quantity" placeholder="Giacenza Iniziale (es. 20)" required>
+                    <input type="text" name="name" placeholder="Es. Farina 00" required>
+                    <input type="number" step="0.01" name="quantity" placeholder="Giacenza (Es. 50)" required>
+                    <input type="text" name="unit" placeholder="Unità (Es. kg, litri)" required style="flex: 0.5;">
+                </div>
+                <div class="form-row">
+                    <input type="number" step="0.01" name="threshold" placeholder="Soglia Minima Allarme" required>
+                    <input type="number" step="0.01" name="unit_cost" placeholder="Costo per Unità (€)" required>
                     <select name="supplier_id">
-                        <option value="">Nessun fornitore specifico</option>
-                        {% for sup in suppliers %}
-                        <option value="{{ sup.id }}">{{ sup.name }}</option>
+                        <option value="" selected>Senza Fornitore</option>
+                        {% for s in suppliers %}
+                        <option value="{{ s.id }}">{{ s.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-row">
-                    <select name="unit" required>
-                        <option value="" disabled selected>Unità di misura...</option>
-                        <option value="kg">Chilogrammi (kg)</option>
-                        <option value="g">Grammi (g)</option>
-                        <option value="L">Litri (L)</option>
-                        <option value="ml">Millilitri (ml)</option>
-                        <option value="pz">Pezzi (pz)</option>
-                    </select>
-                    <input type="number" step="0.01" name="threshold" placeholder="Soglia Minima (es. 5)" required>
-                    
-                    {% if current_user.role == 'owner' %}
-                        <input type="number" step="0.01" name="unit_cost" placeholder="Costo per unità (€)" required>
-                    {% else %}
-                        <input type="hidden" name="unit_cost" value="0">
-                    {% endif %}
-                </div>
-                <button type="submit" class="btn btn-add">Aggiungi al Magazzino</button>
+                <button type="submit" class="btn">Salva in Magazzino</button>
             </form>
         </div>
 
         <div class="card">
-            <h3>📦 Le Tue Scorte Attuali</h3>
+            <h3>📋 Lista Prodotti Attivi</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Prodotto</th>
-                        <th>Quantità Disponibile</th>
-                        <th>Fornitore</th>
-                        {% if current_user.role == 'owner' %}<th>Costo Unitario</th>{% endif %}
+                        <th>Giacenza</th>
+                        <th>Costo Unit.</th>
+                        <th>Valore Tot.</th>
+                        <th>♻️ Scarica Spreco</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for product in products %}
+                    {% for p in products %}
                     <tr>
-                        <td style="font-weight: 600;">{{ product.name }}</td>
-                        <td>{{ product.quantity }} <span class="badge">{{ product.unit }}</span></td>
+                        <td style="font-weight: 600;">{{ p.name }}</td>
                         <td>
-                            {% if product.supplier %}
-                                <span class="sup-badge">{{ product.supplier.name }}</span>
-                            {% else %}
-                                <span style="color: var(--text-muted); font-size: 13px;">Non assegnato</span>
-                            {% endif %}
+                            <span class="badge {% if p.quantity <= p.min_threshold %}badge-danger{% endif %}">
+                                {{ p.quantity }} {{ p.unit }}
+                            </span>
                         </td>
-                        {% if current_user.role == 'owner' %}
-                            <td><span class="price-badge">{{ product.unit_cost }} €</span></td>
-                        {% endif %}
+                        <td style="color: var(--text-muted);">{{ p.unit_cost }} €</td>
+                        <td style="font-weight: 700;">{{ "%.2f"|format(p.quantity * p.unit_cost) }} €</td>
+                        
+                        <td>
+                            <form action="{{ url_for('main.add_waste', product_id=p.id) }}" method="POST" style="display:flex; gap: 5px; margin:0;">
+                                <input type="number" step="0.01" name="quantity" placeholder="Dose persa" required style="width: 100px; min-width: 0; padding: 10px; border-radius: 8px;">
+                                <button type="submit" class="btn-delete" title="Segnala scadenza o spreco">Segnala</button>
+                            </form>
+                        </td>
+
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">
-                            Il magazzino è vuoto. Inizia ad aggiungere i prodotti!
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            Nessun prodotto presente in magazzino. Inizia inserendo il primo!
                         </td>
                     </tr>
                     {% endfor %}

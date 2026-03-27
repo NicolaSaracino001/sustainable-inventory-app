@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, current_app
 from flask_login import login_required, current_user
-from src.models.models import MenuItem, RecipeItem, Product, ConsumptionLog, User, Supplier, db
+# FASE 34: Aggiunto WasteLog all'import
+from src.models.models import MenuItem, RecipeItem, Product, ConsumptionLog, User, Supplier, WasteLog, db
 from datetime import datetime
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -99,6 +100,39 @@ def add_inventory_item():
     db.session.add(new_product)
     db.session.commit()
     flash("Prodotto aggiunto al magazzino.")
+    return redirect(url_for('main.inventory'))
+
+# ---> FASE 34: ROTTA PER REGISTRARE LO SPRECO <---
+@main.route('/add_waste/<int:product_id>', methods=['POST'])
+@login_required
+def add_waste(product_id):
+    product = Product.query.get_or_404(product_id)
+    if product.user_id != current_user.get_restaurant_id:
+        flash("Accesso negato.")
+        return redirect(url_for('main.inventory'))
+
+    quantity = float(request.form.get('quantity'))
+
+    if quantity > product.quantity:
+        flash("❌ Errore: La quantità sprecata non può essere maggiore della giacenza attuale.")
+        return redirect(url_for('main.inventory'))
+
+    # Rimuoviamo la quantità dal magazzino
+    product.quantity -= quantity
+    # Calcoliamo quanti soldi abbiamo buttato
+    cost_lost = quantity * product.unit_cost
+
+    # Salviamo lo storico nel database
+    waste_entry = WasteLog(
+        user_id=current_user.get_restaurant_id,
+        product_id=product.id,
+        quantity_wasted=quantity,
+        cost_lost=cost_lost
+    )
+    db.session.add(waste_entry)
+    db.session.commit()
+
+    flash(f"♻️ Spreco registrato: hai scaricato {quantity} {product.unit} di {product.name}. Costo perso: {round(cost_lost, 2)} €")
     return redirect(url_for('main.inventory'))
 
 @main.route('/suppliers')
@@ -280,12 +314,10 @@ def sell_item(item_id):
     flash("Scontrino registrato! Magazzino e log aggiornati.")
     return redirect(url_for('main.menu'))
 
-# ---> FASE 33: REPORTISTICA AVANZATA <---
 @main.route('/analytics')
 @login_required
 @owner_required
 def analytics():
-    # 1. Calcolo Consumi e Best Sellers
     logs = ConsumptionLog.query.filter_by(user_id=current_user.id).all()
     total_cost_consumed = 0
     product_stats = {}
@@ -298,12 +330,10 @@ def analytics():
         else:
             product_stats[log.product.name] = log.quantity_used
 
-    # Ordiniamo i prodotti dal più consumato al meno consumato e prendiamo solo i primi 5
     sorted_stats = sorted(product_stats.items(), key=lambda x: x[1], reverse=True)[:5]
     top_labels = [x[0] for x in sorted_stats]
     top_values = [x[1] for x in sorted_stats]
 
-    # 2. Calcolo Valore Magazzino per Fornitore (Grafico a Torta)
     products = Product.query.filter_by(user_id=current_user.id).all()
     supplier_value = {}
     
@@ -319,13 +349,18 @@ def analytics():
     sup_labels = list(supplier_value.keys())
     sup_values = [round(v, 2) for v in supplier_value.values()]
 
+    # ---> FASE 34: CALCOLO DENARO SPRECATO <---
+    wastes = WasteLog.query.filter_by(user_id=current_user.id).all()
+    total_waste_cost = sum([w.cost_lost for w in wastes])
+
     return render_template('analytics.html', 
                            total_cost=round(total_cost_consumed, 2), 
                            total_orders=len(logs), 
                            top_labels=top_labels, 
                            top_values=top_values,
                            sup_labels=sup_labels,
-                           sup_values=sup_values)
+                           sup_values=sup_values,
+                           total_waste=round(total_waste_cost, 2)) # Passato al template
 
 @main.route('/profile')
 @login_required
@@ -375,7 +410,7 @@ def settings():
 def add_staff():
     full_name = request.form.get('full_name')
     email = request.form.get('email')
-    password = request.form.get('password')
+    password = request.form.get('password') 
     
     if User.query.filter_by(email=email).first():
         flash("❌ Errore: Questa email è già in uso.")
