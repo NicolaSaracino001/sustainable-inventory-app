@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoodLoop - Recipe Details</title>
-    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}?v=2" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -29,7 +29,7 @@
             min-height: 100vh;
         }
 
-        /* SIDEBAR COERENTE */
+        /* SIDEBAR CON NUOVO BRAND HEADER */
         .sidebar {
             width: 260px; background-color: var(--sidebar-bg); position: fixed;
             height: 100vh; left: 0; top: 0; border-right: 1px solid var(--border-light);
@@ -37,8 +37,18 @@
             box-sizing: border-box; z-index: 1000;
         }
 
-        .logo-container { margin-bottom: 40px; padding: 0 10px; }
-        .logo-img { height: 40px; width: auto; }
+        .logo-container { 
+            display: flex; align-items: center; gap: 12px; 
+            margin-bottom: 40px; padding: 0 10px; 
+        }
+        .logo-img { 
+            height: 42px; width: 42px; border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(22, 163, 74, 0.2); 
+        }
+        .brand-name {
+            font-size: 22px; font-weight: 800; color: var(--text-main); 
+            letter-spacing: -0.5px;
+        }
 
         .nav-menu { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
 
@@ -134,7 +144,8 @@
 
     <div class="sidebar">
         <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="FoodLoop" class="logo-img" onerror="this.style.display='none';">
+            <img src="{{ url_for('static', filename='logo.png') }}?v=2" alt="FoodLoop" class="logo-img">
+            <span class="brand-name">FoodLoop</span>
         </div>
         <div class="nav-menu">
             <a href="{{ url_for('main.dashboard') }}" class="nav-item">

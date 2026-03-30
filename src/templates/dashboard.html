@@ -37,8 +37,9 @@
             box-sizing: border-box; z-index: 1000;
         }
 
-        .logo-container { margin-bottom: 40px; padding: 0 10px; }
-        .logo-img { height: 40px; width: auto; }
+        .logo-container { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; padding: 0 10px;}
+        .logo-img { height: 42px; width: 42px; border-radius: 12px; box-shadow: 0 4px 10px rgba(22, 163, 74, 0.2); }
+        .brand-name { font-size: 22px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px;}
 
         .nav-menu { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
 
@@ -131,7 +132,8 @@
 
     <div class="sidebar">
         <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="FoodLoop" class="logo-img" onerror="this.style.display='none';">
+            <img src="{{ url_for('static', filename='logo.png') }}?v=2" alt="FoodLoop" class="logo-img"> 
+            <span class="brand-name">FoodLoop</span>
         </div>
         
         <div class="nav-menu">

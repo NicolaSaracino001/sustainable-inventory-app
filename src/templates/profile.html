@@ -3,129 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodLoop - Profilo Ristorante</title>
-
-    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
-
+    <title>FoodLoop - Il Mio Profilo</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}?v=2" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--bg-color); color: var(--text-main); padding-top: 80px; }
-
-        .navbar { position: fixed; top: 0; left: 0; right: 0; height: 80px; background: #ffffff; box-shadow: 0 2px 15px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; padding: 0 50px; z-index: 1000; }
-        .logo-container { display: flex; align-items: center; height: 100%; }
-        .logo-img { height: 50px; width: auto; mix-blend-mode: multiply; }
+        :root { 
+            --primary: #10b981; 
+            --primary-dark: #059669; 
+            --sidebar-bg: #ffffff;
+            --bg-color: #f8fafc; 
+            --card-bg: #ffffff; 
+            --text-main: #0f172a; 
+            --text-muted: #64748b; 
+            --border-light: #e2e8f0;
+            --accent-blue: #3b82f6;
+        }
         
-        .nav-links { display: flex; gap: 20px; align-items: center; }
-        .nav-item { color: var(--text-muted); text-decoration: none; font-weight: 600; padding: 10px 18px; border-radius: 8px; transition: all 0.2s; font-size: 15px; }
-        .nav-item:hover, .nav-item.active { background: #f1f5f9; color: var(--primary); }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            display: flex;
+            min-height: 100vh;
+        }
 
-        .user-menu { position: relative; display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 6px 10px; border-radius: 12px; transition: background 0.2s; border: 1px solid transparent;}
-        .user-menu:hover { background: #f8fafc; border-color: #e2e8f0; }
-        .user-details { display: flex; flex-direction: column; text-align: right; }
-        .res-name { font-weight: 700; font-size: 14px; color: var(--text-main); line-height: 1.2;}
-        .user-name { font-size: 12px; color: var(--text-muted); }
-        .avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);}
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); position: fixed;
+            height: 100vh; left: 0; top: 0; border-right: 1px solid var(--border-light);
+            display: flex; flex-direction: column; padding: 24px 20px;
+            box-sizing: border-box; z-index: 1000;
+        }
 
-        .user-menu::after { content: ''; position: absolute; top: 100%; left: 0; width: 100%; height: 15px; background: transparent; }
-        .dropdown-content { display: none; position: absolute; top: calc(100% + 10px); right: 0; background-color: white; min-width: 220px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; z-index: 1001; border: 1px solid #e2e8f0; }
-        .user-menu:hover .dropdown-content { display: block; }
+        .logo-container { 
+            display: flex; align-items: center; gap: 12px; 
+            margin-bottom: 40px; padding: 0 10px; 
+        }
+        .logo-img { 
+            height: 42px; width: 42px; border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(22, 163, 74, 0.2); 
+        }
+        .brand-name {
+            font-size: 22px; font-weight: 800; color: var(--text-main); 
+            letter-spacing: -0.5px;
+        }
+
+        .nav-menu { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            color: var(--text-muted); text-decoration: none;
+            font-weight: 600; padding: 12px 16px;
+            border-radius: 10px; transition: all 0.2s ease; font-size: 14px;
+        }
+        .nav-item i { width: 20px; height: 20px; }
+        .nav-item:hover { background-color: #f1f5f9; color: var(--text-main); }
+        .nav-item.active { background-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .nav-item.bottom-active { background-color: #f1f5f9; color: var(--primary); }
+
+        .bottom-nav { border-top: 1px solid var(--border-light); padding-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+
+        /* AREA CENTRALE */
+        .main-content {
+            margin-left: 260px; padding: 40px 50px;
+            flex-grow: 1; width: calc(100% - 260px); box-sizing: border-box;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+        .header p { margin: 6px 0 0 0; color: var(--text-muted); font-size: 15px; }
+
+        .user-profile {
+            display: flex; align-items: center; gap: 12px;
+            background: white; padding: 6px 16px 6px 6px;
+            border-radius: 50px; border: 1px solid var(--border-light);
+        }
+        .avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--text-main); color: white; 
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 14px;
+        }
+
+        /* GRID CARDS */
+        .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 900px) { .layout-grid { grid-template-columns: 1fr; } }
+
+        .card { 
+            background: var(--card-bg); padding: 30px; border-radius: 16px; 
+            border: 1px solid var(--border-light); margin-bottom: 24px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9;}
+        .card-header h3 { margin: 0; font-size: 18px; color: var(--text-main); }
+
+        /* INFO LIST */
+        .info-list { list-style: none; padding: 0; margin: 0; }
+        .info-list li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f8fafc; font-size: 14px;}
+        .info-list li:last-child { border-bottom: none; }
+        .info-label { color: var(--text-muted); font-weight: 500; }
+        .info-value { color: var(--text-main); font-weight: 600; }
+
+        /* FORM */
+        .form-group { margin-bottom: 15px; }
+        input { 
+            width: 100%; padding: 12px 16px; border: 1px solid var(--border-light); 
+            border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 14px; 
+            outline: none; transition: all 0.2s; box-sizing: border-box; background: #f8fafc; 
+        }
+        input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         
-        .dropdown-content a { color: var(--text-main); padding: 14px 20px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; transition: 0.2s; }
-        .dropdown-content a:hover { background-color: #f8fafc; color: var(--primary); }
-        .logout-link { color: #ef4444 !important; border-top: 1px solid #f1f5f9; }
-        .logout-link:hover { background-color: #fef2f2 !important; color: #dc2626 !important; }
+        .btn-primary { 
+            width: 100%; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; 
+            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; 
+            color: white; background-color: var(--primary); 
+            display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-primary:hover { background-color: var(--primary-dark); }
 
-        .content { max-width: 800px; margin: 0 auto; padding: 40px 20px; text-align: center; }
-        .profile-icon { font-size: 80px; margin-bottom: 20px; display: inline-block; background: #ecfdf5; padding: 20px; border-radius: 50%; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.1); }
-        h1 { margin: 0; font-size: 36px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
-        p { color: var(--text-muted); font-size: 18px; margin-top: 5px; }
+        .btn-export {
+            width: 100%; padding: 14px 20px; border: none; border-radius: 10px; cursor: pointer; 
+            font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; 
+            color: white; background-color: var(--text-main); 
+            display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; text-decoration: none;
+        }
+        .btn-export:hover { background-color: black; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        .card { background: var(--card-bg); padding: 40px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; margin-top: 40px; text-align: left;}
-        .info-group { margin-bottom: 25px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
-        .info-group label { display: block; font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .info-group .data { font-size: 20px; font-weight: 700; color: var(--text-main); }
-
-        .btn-excel { display: block; width: 100%; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 18px; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s; text-decoration: none; margin-top: 30px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2); }
-        .btn-excel:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3); }
-
-        .budget-form { display: flex; gap: 10px; margin-top: 10px; }
-        .budget-form input { flex: 1; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 16px; outline: none; }
-        .budget-form input:focus { border-color: #f59e0b; }
-        .btn-budget { background-color: #f59e0b; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s;}
-        .btn-budget:hover { background-color: #d97706; }
-
-        .flash-msg { padding: 16px; margin-bottom: 25px; border-radius: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 10px; background-color: #ecfdf5; color: #059669; border-left: 4px solid #10b981; }
+        .flash-msg { padding: 16px; margin-bottom: 24px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
     </style>
 </head>
 <body>
-    <div class="navbar">
+
+    <div class="sidebar">
         <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img" onerror="this.style.display='none';">
+            <img src="{{ url_for('static', filename='logo.png') }}?v=2" alt="FoodLoop" class="logo-img">
+            <span class="brand-name">FoodLoop</span>
         </div>
         
-        <div class="nav-links">
-            <a href="{{ url_for('main.dashboard') }}" class="nav-item">Dashboard</a>
-            <a href="{{ url_for('main.inventory') }}" class="nav-item">Magazzino</a>
-            <a href="{{ url_for('main.menu') }}" class="nav-item">Gestione Menù</a>
-            <a href="{{ url_for('main.suppliers') }}" class="nav-item">Fornitori</a>
-            
-            <div class="user-menu">
-                <div class="user-details">
-                    <span class="res-name">{{ current_user.get_restaurant_name }}</span>
-                    <span class="user-name">{{ current_user.full_name }} (Admin)</span>
-                </div>
-                <div class="avatar">{{ current_user.full_name[0] | upper }}</div>
-                
-                <div class="dropdown-content">
-                    <a href="{{ url_for('main.analytics') }}">📈 FoodLoop Intelligence</a>
-                    <a href="{{ url_for('main.profile') }}">👤 Profilo & Esportazioni</a>
-                    <a href="{{ url_for('main.settings') }}">⚙️ Impostazioni Staff</a>
-                    <a href="{{ url_for('auth.logout') }}" class="logout-link">🚪 Esci dall'account</a>
-                </div>
-            </div>
+        <div class="nav-menu">
+            <a href="{{ url_for('main.dashboard') }}" class="nav-item">
+                <i data-lucide="layout-dashboard"></i> Overview
+            </a>
+            <a href="{{ url_for('main.inventory') }}" class="nav-item">
+                <i data-lucide="package"></i> Inventory
+            </a>
+            <a href="{{ url_for('main.menu') }}" class="nav-item">
+                <i data-lucide="book-open"></i> Menu Planner
+            </a>
+            <a href="{{ url_for('main.suppliers') }}" class="nav-item">
+                <i data-lucide="shopping-cart"></i> Shopping & Suppliers
+            </a>
+        </div>
+
+        <div class="bottom-nav">
+            {% if current_user.role == 'owner' %}
+                <a href="{{ url_for('main.analytics') }}" class="nav-item">
+                    <i data-lucide="pie-chart"></i> Reports & Analysis
+                </a>
+                <a href="{{ url_for('main.profile') }}" class="nav-item bottom-active">
+                    <i data-lucide="user"></i> Account
+                </a>
+                <a href="{{ url_for('main.settings') }}" class="nav-item">
+                    <i data-lucide="settings"></i> Settings
+                </a>
+            {% endif %}
+            <a href="{{ url_for('auth.logout') }}" class="nav-item" style="color: #ef4444;">
+                <i data-lucide="log-out"></i> Logout
+            </a>
         </div>
     </div>
 
-    <div class="content">
-        <div class="profile-icon">👨‍🍳</div>
-        <h1>{{ current_user.get_restaurant_name }}</h1>
-        <p>Centro di controllo e reportistica</p>
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h1>Gestione Account</h1>
+                <p>Visualizza i tuoi dettagli, imposta il budget operativo ed esporta i dati.</p>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">{{ current_user.full_name[0] | upper }}</div>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 600; font-size: 13px;">{{ current_user.full_name }}</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">{{ current_user.get_restaurant_name }}</span>
+                </div>
+            </div>
+        </div>
 
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
-              <div class="flash-msg"><span>✅</span> {{ message }}</div>
+              <div class="flash-msg"><i data-lucide="check-circle-2"></i> {{ message }}</div>
             {% endfor %}
           {% endif %}
         {% endwith %}
 
-        <div class="card">
-            <div class="info-group">
-                <label>Email Proprietario</label>
-                <div class="data">{{ user.email }}</div>
-            </div>
-
-            <div class="info-group">
-                <label>Imposta Budget Operativo Mensile</label>
-                <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 10px;">
-                    Definisci il limite di spesa per il magazzino. La Dashboard ti mostrerà il progresso "Arcade". Attuale: <strong>{{ user.monthly_budget }} €</strong>
+        <div class="layout-grid">
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <i data-lucide="badge-check" style="color: var(--primary);"></i>
+                        <h3>Dettagli Profilo</h3>
+                    </div>
+                    <ul class="info-list">
+                        <li><span class="info-label">Nome Completo:</span> <span class="info-value">{{ user.full_name }}</span></li>
+                        <li><span class="info-label">Email:</span> <span class="info-value">{{ user.email }}</span></li>
+                        <li><span class="info-label">Nome Locale:</span> <span class="info-value">{{ user.restaurant_name }}</span></li>
+                        <li>
+                            <span class="info-label">Ruolo:</span> 
+                            <span class="info-value" style="background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 12px; font-size: 12px;">{{ user.role | upper }}</span>
+                        </li>
+                    </ul>
                 </div>
-                <form class="budget-form" action="{{ url_for('main.update_budget') }}" method="POST">
-                    <input type="number" step="0.01" name="budget" placeholder="Nuovo Budget (es. 2000)" required>
-                    <button type="submit" class="btn-budget">Aggiorna Budget</button>
-                </form>
-            </div>
 
-            <div class="info-group" style="border-bottom: none;">
-                <label>Esportazione di Fine Mese</label>
-                <div style="color: var(--text-muted); font-size: 15px; margin-top: 5px;">
-                    Scarica l'inventario completo con il calcolo del valore totale in formato compatibile per Excel.
+                <div class="card">
+                    <div class="card-header">
+                        <i data-lucide="download" style="color: var(--text-main);"></i>
+                        <h3>Esportazione Dati</h3>
+                    </div>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">
+                        Scarica l'inventario attuale in formato Excel per la contabilità.
+                    </p>
+                    <a href="{{ url_for('main.export_excel') }}" class="btn-export">
+                        <i data-lucide="file-spreadsheet"></i> Scarica Report Excel
+                    </a>
                 </div>
             </div>
 
-            <a href="{{ url_for('main.export_excel') }}" class="btn-excel">📊 Scarica Report Magazzino (.xlsx)</a>
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <i data-lucide="wallet" style="color: var(--accent-blue);"></i>
+                        <h3>Budget Operativo Mensile</h3>
+                    </div>
+                    <p style="font-size: 14px; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">
+                        Imposta un limite di spesa. L'intelligenza Artificiale ti avviserà se il valore del tuo magazzino supera questo budget.
+                    </p>
+                    
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid var(--border-light); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-weight: 600; color: var(--text-muted);">Budget Attuale:</span>
+                        <span style="font-size: 24px; font-weight: 800; color: var(--primary);">€ {{ user.monthly_budget }}</span>
+                    </div>
+
+                    <form action="{{ url_for('main.update_budget') }}" method="POST">
+                        <div class="form-group">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">Nuovo Limite di Budget (€)</label>
+                            <input type="number" step="0.01" name="budget" placeholder="es. 5000" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i data-lucide="save"></i> Aggiorna Budget
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
