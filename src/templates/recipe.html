@@ -3,225 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodLoop - Scheda Ricetta</title>
+    <title>FoodLoop - Recipe Details</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root { --primary: #10b981; --primary-dark: #059669; --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--bg-color); color: var(--text-main); padding-top: 80px; }
-
-        .navbar { position: fixed; top: 0; left: 0; right: 0; height: 80px; background: #ffffff; box-shadow: 0 2px 15px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; padding: 0 50px; z-index: 1000; }
-        .logo-container { display: flex; align-items: center; height: 100%; }
-        .logo-img { height: 50px; width: auto; mix-blend-mode: multiply; }
+        :root { 
+            --primary: #10b981; 
+            --primary-dark: #059669; 
+            --sidebar-bg: #ffffff;
+            --bg-color: #f8fafc; 
+            --card-bg: #ffffff; 
+            --text-main: #0f172a; 
+            --text-muted: #64748b; 
+            --border-light: #e2e8f0;
+            --accent-purple: #8b5cf6;
+        }
         
-        .nav-links { display: flex; gap: 20px; align-items: center; }
-        .nav-item { color: var(--text-muted); text-decoration: none; font-weight: 600; padding: 10px 18px; border-radius: 8px; transition: all 0.2s; font-size: 15px; }
-        .nav-item:hover, .nav-item.active { background: #f1f5f9; color: var(--primary); }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            display: flex;
+            min-height: 100vh;
+        }
 
-        .user-menu { position: relative; display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 6px 10px; border-radius: 12px; transition: background 0.2s; border: 1px solid transparent;}
-        .user-menu:hover { background: #f8fafc; border-color: #e2e8f0; }
-        .user-details { display: flex; flex-direction: column; text-align: right; }
-        .res-name { font-weight: 700; font-size: 14px; color: var(--text-main); line-height: 1.2;}
-        .user-name { font-size: 12px; color: var(--text-muted); }
-        .avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);}
+        /* SIDEBAR COERENTE */
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); position: fixed;
+            height: 100vh; left: 0; top: 0; border-right: 1px solid var(--border-light);
+            display: flex; flex-direction: column; padding: 24px 20px;
+            box-sizing: border-box; z-index: 1000;
+        }
 
-        .user-menu::after { content: ''; position: absolute; top: 100%; left: 0; width: 100%; height: 15px; background: transparent; }
-        .dropdown-content { display: none; position: absolute; top: calc(100% + 10px); right: 0; background-color: white; min-width: 220px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; z-index: 1001; border: 1px solid #e2e8f0; }
-        .user-menu:hover .dropdown-content { display: block; }
-        .dropdown-content a { color: var(--text-main); padding: 14px 20px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; transition: 0.2s; }
-        .dropdown-content a:hover { background-color: #f8fafc; color: var(--primary); }
-        .logout-link { color: #ef4444 !important; border-top: 1px solid #f1f5f9; }
-        .logout-link:hover { background-color: #fef2f2 !important; color: #dc2626 !important; }
+        .logo-container { margin-bottom: 40px; padding: 0 10px; }
+        .logo-img { height: 40px; width: auto; }
 
-        .content { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        .header { margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; }
-        .header h1 { margin: 0; font-size: 32px; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
-        .header p { margin: 8px 0 0 0; color: var(--text-muted); font-size: 16px; }
+        .nav-menu { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            color: var(--text-muted); text-decoration: none;
+            font-weight: 600; padding: 12px 16px;
+            border-radius: 10px; transition: all 0.2s ease; font-size: 14px;
+        }
+        .nav-item i { width: 20px; height: 20px; }
+        .nav-item:hover { background-color: #f1f5f9; color: var(--text-main); }
+        .nav-item.active { background-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+
+        .bottom-nav { border-top: 1px solid var(--border-light); padding-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+
+        /* AREA CENTRALE E LAYOUT */
+        .main-content {
+            margin-left: 260px; padding: 40px 50px;
+            flex-grow: 1; width: calc(100% - 260px); box-sizing: border-box;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
+        .header p { margin: 6px 0 0 0; color: var(--text-muted); font-size: 15px; }
+
+        .btn-back {
+            background: white; border: 1px solid var(--border-light); color: var(--text-main);
+            padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; text-decoration: none;
+        }
+        .btn-back:hover { background: #f1f5f9; border-color: #cbd5e1; }
+
+        .layout-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; align-items: start; }
+        @media (max-width: 1000px) { .layout-grid { grid-template-columns: 1fr; } }
+
+        /* CARDS E FORM */
+        .card { 
+            background: var(--card-bg); padding: 24px; border-radius: 16px; 
+            border: 1px solid var(--border-light); margin-bottom: 24px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .card-header h3 { margin: 0; font-size: 16px; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
         
-        .btn-back { background-color: #f1f5f9; color: var(--text-main); border: 2px solid #e2e8f0; padding: 12px 18px; border-radius: 10px; font-weight: 600; text-decoration: none; transition: 0.3s;}
-        .btn-back:hover { background-color: #e2e8f0; }
+        input[type="text"], input[type="number"], select, textarea { 
+            width: 100%; padding: 12px 16px; border: 1px solid var(--border-light); 
+            border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 14px; 
+            outline: none; transition: all 0.2s; background: #f8fafc; box-sizing: border-box;
+        }
+        textarea { resize: vertical; min-height: 100px; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        input[type="file"] { padding: 10px; font-size: 13px; background: white; border: 1px dashed #cbd5e1; width: 100%; box-sizing: border-box; border-radius: 10px;}
 
-        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start;}
-        @media (max-width: 900px) { .grid-container { grid-template-columns: 1fr; } }
+        .btn-primary { 
+            width: 100%; padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; 
+            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; 
+            color: white; background-color: var(--text-main); 
+            display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-primary:hover { background-color: black; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        .card { background: var(--card-bg); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; margin-bottom: 30px;}
-        .card h3 { margin-top: 0; color: var(--text-main); font-size: 18px; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;}
+        .btn-ai {
+            width: 100%; padding: 14px 20px; border: none; border-radius: 12px; cursor: pointer; 
+            font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: white; 
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); }
 
-        .recipe-image-preview { width: 100%; height: 250px; border-radius: 12px; object-fit: cover; background-color: #f1f5f9; margin-bottom: 20px; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #94a3b8;}
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
-        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 15px; box-sizing: border-box; outline: none; transition: 0.3s; background: #f8fafc;}
-        .input-group input:focus, .input-group textarea:focus { border-color: var(--primary); background: white; }
-        .input-group textarea { resize: vertical; min-height: 120px; }
+        /* TABELLA INGREDIENTI */
+        .table-container { width: 100%; overflow-x: auto; border: 1px solid var(--border-light); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 12px 16px; background: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border-light); }
+        td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; vertical-align: middle; }
         
-        .btn { padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: white; transition: all 0.3s; display: inline-block; width: 100%; box-sizing: border-box;}
-        .btn-primary { background-color: var(--primary); }
-        .btn-primary:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2); }
-        .btn-secondary { background-color: #3b82f6; }
-        .btn-secondary:hover { background-color: #2563eb; transform: translateY(-2px);}
+        .btn-danger-icon {
+            background: #fef2f2; color: #ef4444; border: none; border-radius: 8px;
+            padding: 8px; cursor: pointer; transition: 0.2s; display: inline-flex;
+        }
+        .btn-danger-icon:hover { background: #fecaca; }
+
+        .flash-msg { padding: 16px; margin-bottom: 24px; border-radius: 10px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .flash-error { background-color: #fef2f2; color: #b91c1c; border-color: #fecaca; }
         
-        .btn-ai { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); margin-bottom: 20px; text-align: center; }
-        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(139, 92, 246, 0.3); }
-
-        .btn-delete { background: #fee2e2; color: #ef4444; border-radius: 6px; padding: 6px 10px; font-size: 12px; margin:0; width: auto; font-weight: 700; transition: 0.2s; border: 1px solid transparent;}
-        .btn-delete:hover { background: #fecaca; border-color: #ef4444; transform: scale(1.05);}
-
-        .form-row-ing { display: flex; gap: 10px; margin-bottom: 15px;}
-        .form-row-ing select { flex: 2; }
-        .form-row-ing input { flex: 1; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 12px; color: var(--text-muted); font-weight: 600; border-bottom: 2px solid #e2e8f0; }
-        td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); vertical-align: middle;}
-        .badge { background: #f1f5f9; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
-
-        .flash-msg { padding: 16px; margin-bottom: 25px; border-radius: 12px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
-        .flash-error { background-color: #fef2f2; color: #ef4444; border-left: 4px solid #ef4444; }
-        .flash-success { background-color: #f0fdf4; color: #16a34a; border-left: 4px solid #16a34a; }
+        .recipe-image-preview { width: 100%; height: 180px; border-radius: 10px; object-fit: cover; margin-bottom: 16px; border: 1px solid var(--border-light); }
     </style>
 </head>
 <body>
-    <div class="navbar">
+
+    <div class="sidebar">
         <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-img" onerror="this.style.display='none';">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="FoodLoop" class="logo-img" onerror="this.style.display='none';">
         </div>
-        
-        <div class="nav-links">
-            <a href="{{ url_for('main.dashboard') }}" class="nav-item">Dashboard</a>
-            <a href="{{ url_for('main.inventory') }}" class="nav-item">Magazzino</a>
-            <a href="{{ url_for('main.menu') }}" class="nav-item active">Gestione Menù</a>
-            <a href="{{ url_for('main.suppliers') }}" class="nav-item">Fornitori</a>
-            
-            <div class="user-menu">
-                <div class="user-details">
-                    <span class="res-name">{{ current_user.get_restaurant_name }}</span>
-                    <span class="user-name">{{ current_user.full_name }} ({% if current_user.role == 'owner' %}Admin{% else %}Staff{% endif %})</span>
-                </div>
-                <div class="avatar">{{ current_user.full_name[0] | upper }}</div>
-                
-                <div class="dropdown-content">
-                    {% if current_user.role == 'owner' %}
-                        <a href="{{ url_for('main.analytics') }}">📈 FoodLoop Intelligence</a>
-                        <a href="{{ url_for('main.profile') }}">👤 Profilo & Esportazioni</a>
-                        <a href="{{ url_for('main.settings') }}">⚙️ Impostazioni Staff</a>
-                    {% endif %}
-                    <a href="{{ url_for('auth.logout') }}" class="logout-link">🚪 Esci dall'account</a>
-                </div>
-            </div>
+        <div class="nav-menu">
+            <a href="{{ url_for('main.dashboard') }}" class="nav-item">
+                <i data-lucide="layout-dashboard"></i> Overview
+            </a>
+            <a href="{{ url_for('main.inventory') }}" class="nav-item">
+                <i data-lucide="package"></i> Inventory
+            </a>
+            <a href="{{ url_for('main.menu') }}" class="nav-item active">
+                <i data-lucide="book-open"></i> Menu Planner
+            </a>
+            <a href="{{ url_for('main.suppliers') }}" class="nav-item">
+                <i data-lucide="shopping-cart"></i> Shopping & Suppliers
+            </a>
+        </div>
+        <div class="bottom-nav">
+            {% if current_user.role == 'owner' %}
+                <a href="{{ url_for('main.analytics') }}" class="nav-item">
+                    <i data-lucide="pie-chart"></i> Reports & Analysis
+                </a>
+                <a href="{{ url_for('main.profile') }}" class="nav-item">
+                    <i data-lucide="user"></i> Account
+                </a>
+                <a href="{{ url_for('main.settings') }}" class="nav-item">
+                    <i data-lucide="settings"></i> Settings
+                </a>
+            {% endif %}
+            <a href="{{ url_for('auth.logout') }}" class="nav-item" style="color: #ef4444;">
+                <i data-lucide="log-out"></i> Logout
+            </a>
         </div>
     </div>
-    
-    <div class="content">
+
+    <div class="main-content">
         <div class="header">
             <div>
-                <h1>Manuale: {{ item.name }}</h1>
-                <p>Configura la preparazione e la distinta base.</p>
+                <h1><i data-lucide="chef-hat" style="width: 28px; height: 28px; color: var(--text-muted);"></i> {{ item.name }}</h1>
+                <p>Configura i dettagli della ricetta e la distinta base.</p>
             </div>
-            <a href="{{ url_for('main.menu') }}" class="btn-back">⬅ Torna al Menù</a>
+            <a href="{{ url_for('main.menu') }}" class="btn-back">
+                <i data-lucide="arrow-left" style="width: 16px;"></i> Torna al Menù
+            </a>
         </div>
 
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
-              {% if 'Errore' in message or '❌' in message %}
-                <div class="flash-msg flash-error"><span>⚠️</span> {{ message }}</div>
-              {% else %}
-                <div class="flash-msg flash-success"><span>✨</span> {{ message }}</div>
-              {% endif %}
+              <div class="flash-msg {% if 'Errore' in message %}flash-error{% endif %}">
+                  <i data-lucide="{% if 'Errore' in message %}alert-circle{% else %}check-circle-2{% endif %}"></i> 
+                  {{ message }}
+              </div>
             {% endfor %}
           {% endif %}
         {% endwith %}
 
-        <div class="grid-container">
-            <div class="card">
-                <h3>📖 Dettagli Preparazione</h3>
-                
-                {% if item.image_file != 'default.jpg' %}
-                    <img src="{{ url_for('static', filename='recipes_img/' + item.image_file) }}" class="recipe-image-preview" style="border: none;">
-                {% else %}
-                    <div class="recipe-image-preview">Nessuna foto caricata</div>
-                {% endif %}
-
-                <form action="{{ url_for('main.update_recipe_details', item_id=item.id) }}" method="POST" enctype="multipart/form-data">
-                    <div class="input-group">
-                        <label>Aggiorna Foto Piatto</label>
-                        <input type="file" name="image" accept="image/png, image/jpeg">
+        <div class="layout-grid">
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i data-lucide="file-text" style="color: var(--primary);"></i> Dettagli e Preparazione</h3>
                     </div>
-                    <div style="display: flex; gap: 15px;">
-                        <div class="input-group" style="flex: 1;">
-                            <label>Tempo Cottura/Prep. (Minuti)</label>
+                    
+                    {% if item.image_file != 'default.jpg' %}
+                        <img src="{{ url_for('static', filename='recipes_img/' + item.image_file) }}" class="recipe-image-preview" alt="Foto Piatto">
+                    {% endif %}
+
+                    <form action="{{ url_for('main.update_recipe_details', item_id=item.id) }}" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>Tempo di Preparazione (minuti)</label>
                             <input type="number" name="prep_time" value="{{ item.prep_time or '' }}" placeholder="Es. 15">
                         </div>
-                        <div class="input-group" style="flex: 2;">
-                            <label>Allergeni (HACCP)</label>
-                            <input type="text" name="allergens" value="{{ item.allergens or '' }}" placeholder="Es. Glutine, Lattosio, Soia">
+                        <div class="form-group">
+                            <label>Allergeni</label>
+                            <input type="text" name="allergens" value="{{ item.allergens or '' }}" placeholder="Es. Glutine, Lattosio">
                         </div>
-                    </div>
-                    <div class="input-group">
-                        <label>Procedimento passo-passo</label>
-                        <textarea name="instructions" placeholder="1. Tagliare le verdure...&#10;2. Portare l'acqua a ebollizione...">{{ item.instructions or '' }}</textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Salva Dettagli Manuale</button>
-                </form>
+                        <div class="form-group">
+                            <label>Istruzioni di Preparazione</label>
+                            <textarea name="instructions" placeholder="Scrivi qui i passaggi per la cucina...">{{ item.instructions or '' }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Carica Foto del Piatto</label>
+                            <input type="file" name="image" accept=".jpg, .jpeg, .png">
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i data-lucide="save" style="width: 16px;"></i> Salva Dettagli
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <div>
-                <div class="card" style="margin-bottom: 30px;">
-                    <h3>🤖 FoodLoop Co-Pilot</h3>
-                    <p style="font-size: 14px; color: var(--text-muted); margin-top: 0;">L'AI leggerà il nome del tuo piatto e i prodotti nel tuo magazzino per calcolare automaticamente la distinta base.</p>
-                    
+                <div class="card" style="background: linear-gradient(145deg, #ffffff 0%, #f5f3ff 100%); border-color: #ddd6fe;">
+                    <div class="card-header">
+                        <h3 style="color: var(--accent-purple);"><i data-lucide="sparkles"></i> AI Recipe Generator</h3>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: -10px; margin-bottom: 16px;">
+                        Lascia che l'Intelligenza Artificiale legga il tuo magazzino e componga automaticamente le quantità esatte per una porzione di questo piatto.
+                    </p>
                     <form action="{{ url_for('main.generate_recipe_ai', item_id=item.id) }}" method="POST">
-                        <button type="submit" class="btn btn-ai">✨ Genera Distinta con Intelligenza Artificiale</button>
-                    </form>
-
-                    <div style="border-top: 1px solid #f1f5f9; margin: 20px 0;"></div>
-
-                    <h3 style="font-size: 15px;">➕ Oppure inserisci manualmente</h3>
-                    <form action="{{ url_for('main.add_recipe_item', item_id=item.id) }}" method="POST" class="form-row-ing">
-                        <select name="product_id" required class="input-group" style="margin-bottom: 0;">
-                            <option value="" disabled selected>Cerca nel Magazzino...</option>
-                            {% for p in products %}
-                            <option value="{{ p.id }}">{{ p.name }} (in {{ p.unit }})</option>
-                            {% endfor %}
-                        </select>
-                        <input type="number" step="0.01" name="quantity" placeholder="Dose" required class="input-group" style="margin-bottom: 0; padding: 12px;">
-                        <button type="submit" class="btn btn-secondary" style="width: auto;">Add</button>
+                        <button type="submit" class="btn-ai">
+                            <i data-lucide="wand-2" style="width: 18px;"></i> Genera Ricetta con Gemini
+                        </button>
                     </form>
                 </div>
 
                 <div class="card">
-                    <h3>📜 Distinta Base (Food Cost)</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Ingrediente</th>
-                                <th>Dose per porzione</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for r in recipe_items %}
-                            <tr>
-                                <td style="font-weight: 600;">{{ r.product.name }}</td>
-                                <td>{{ r.quantity_needed }} <span class="badge">{{ r.product.unit }}</span></td>
-                                <td style="text-align: right;">
-                                    <form action="{{ url_for('main.delete_recipe_item', recipe_item_id=r.id) }}" method="POST" style="margin: 0; display: inline-block;">
-                                        <button type="submit" class="btn btn-delete">Rimuovi</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                                    Nessun ingrediente collegato. Prova la magia dell'AI!
-                                </td>
-                            </tr>
+                    <div class="card-header">
+                        <h3><i data-lucide="list-checks" style="color: var(--primary);"></i> Distinta Base (BOM)</h3>
+                    </div>
+                    
+                    <form action="{{ url_for('main.add_recipe_item', item_id=item.id) }}" method="POST" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <select name="product_id" required style="flex: 2;">
+                            <option value="" selected>Seleziona ingrediente...</option>
+                            {% for p in products %}
+                            <option value="{{ p.id }}">{{ p.name }} (in {{ p.unit }})</option>
                             {% endfor %}
-                        </tbody>
-                    </table>
+                        </select>
+                        <input type="number" step="0.001" name="quantity" placeholder="Quantità" required style="flex: 1;">
+                        <button type="submit" class="btn-primary" style="width: auto;">
+                            <i data-lucide="plus"></i>
+                        </button>
+                    </form>
+
+                    {% if recipe_items %}
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ingrediente</th>
+                                    <th>Dose per 1 Porzione</th>
+                                    <th style="text-align: right;">Rimuovi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r_item in recipe_items %}
+                                <tr>
+                                    <td style="font-weight: 500; color: var(--text-main);">{{ r_item.product.name }}</td>
+                                    <td style="color: var(--text-muted);">{{ r_item.quantity_needed }} {{ r_item.product.unit }}</td>
+                                    <td style="text-align: right;">
+                                        <form action="{{ url_for('main.delete_recipe_item', recipe_item_id=r_item.id) }}" method="POST" style="margin: 0;">
+                                            <button type="submit" class="btn-danger-icon" title="Rimuovi ingrediente">
+                                                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div style="text-align: center; padding: 30px 10px; color: var(--text-muted); font-size: 14px; background: #f8fafc; border-radius: 8px; border: 1px dashed var(--border-light);">
+                        Nessun ingrediente inserito. Clicca sul pulsante AI o aggiungili manualmente.
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
